@@ -15,6 +15,7 @@ import { CoachConfig, CoachMessage, CoachTodaySession, OutboxItem, coachFetch, c
 type Palette = ReturnType<typeof useNutritionPalette>;
 
 const POLL_MS = 20000;
+const POLL_THINKING_MS = 3000; // koç cevap hazırlarken daha sık bak
 
 function withAlpha(hex: string, alpha: number): string {
   const n = parseInt(hex.slice(1), 16);
@@ -60,6 +61,7 @@ export default function CoachScreen() {
   const [today, setToday] = useState<CoachTodaySession[]>([]);
   const [outbox, setOutbox] = useState<OutboxItem[]>([]);
   const [delivering, setDelivering] = useState(false);
+  const [serverThinking, setServerThinking] = useState(false);
   const listRef = useRef<FlatList<CoachMessage>>(null);
 
   useEffect(() => {
@@ -86,8 +88,9 @@ export default function CoachScreen() {
       }
     }
     try {
-      const res = await coachFetch<{ messages: CoachMessage[] }>(config, '/messages');
+      const res = await coachFetch<{ messages: CoachMessage[]; yanitlaniyor?: boolean }>(config, '/messages');
       setMessages(res.messages);
+      setServerThinking(!!res.yanitlaniyor);
       // Sohbette görünen koç mesajları için arka planda ayrıca bildirim gelmesin.
       markCoachSeen([...res.messages].reverse().find((m) => m.role === 'assistant')?.created_at);
       coachFetch<{ sessions: CoachTodaySession[] }>(config, '/plan/today').then((r) => setToday(r.sessions)).catch(() => {});
@@ -104,13 +107,13 @@ export default function CoachScreen() {
   useFocusEffect(
     useCallback(() => {
       refresh();
-      const timer = setInterval(refresh, POLL_MS);
+      const timer = setInterval(refresh, serverThinking || sending ? POLL_THINKING_MS : POLL_MS);
       const sub = AppState.addEventListener('change', (s) => s === 'active' && refresh());
       return () => {
         clearInterval(timer);
         sub.remove();
       };
-    }, [refresh])
+    }, [refresh, serverThinking, sending])
   );
 
   const send = async () => {
@@ -222,7 +225,7 @@ export default function CoachScreen() {
                 </View>
               ) : null
             }
-            ListHeaderComponent={sending ? (
+            ListHeaderComponent={sending || serverThinking ? (
               <View style={[styles.bubble, styles.assistant, styles.thinking]}>
                 <ActivityIndicator size="small" color={palette.muted} />
                 <ThemedText style={styles.meta}>Koç düşünüyor…</ThemedText>
@@ -337,7 +340,7 @@ function MessageBubble({ message, palette, config, undone, delivering, onUndo, o
           <Image source={message.localImage ? { uri: message.localImage } : coachImageSource(config, message.id)} style={styles.bubbleImage} />
         </Pressable>
       ) : null}
-      {message.content ? <ThemedText style={styles.body}>{message.content}</ThemedText> : null}
+      {message.content ? <ThemedText selectable style={styles.body}>{message.content}</ThemedText> : null}
       {message.gonderilmedi ? (
         <ThemedText style={styles.meta}>{delivering ? 'Gönderiliyor…' : 'Gönderilmedi · bağlantı gelince otomatik gidecek'}</ThemedText>
       ) : message.bekliyor ? (

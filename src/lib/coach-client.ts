@@ -19,6 +19,8 @@ export type CoachMessage = {
   islemler: { tool: string; islem_id: string | null }[];
   /** Sunucuda bekliyor: kota/model/bağlantı dönünce otomatik cevaplanacak. */
   bekliyor?: boolean;
+  /** Koç bu mesajın cevabını şu an sunucuda hazırlıyor (uygulama kapansa da sürer). */
+  yanitlaniyor?: boolean;
   /** Mesajla gönderilmiş bir görsel var (sunucudan /images/<id> ile gelir). */
   gorsel?: boolean;
   /** Sadece uygulamada: giden kutusunda, henüz sunucuya ulaşmadı. */
@@ -202,7 +204,8 @@ export async function flushOutbox(config: CoachConfig): Promise<{ sent: number; 
       try {
         // client_id: zaman aşımı sonrası tekrar gönderimde sunucu aynı mesajı ikinci kez işlemez.
         const image = item.image ? await readBase64(item.image) : undefined;
-        await coachFetch(config, '/chat', { method: 'POST', body: { text: item.text, client_id: item.id, image }, timeoutMs: 180000 });
+        // Sunucu mesajı alıp hemen döner; cevap arka planda hazırlanır, /messages ile gelir.
+        await coachFetch(config, '/chat', { method: 'POST', body: { text: item.text, client_id: item.id, image }, timeoutMs: 60000 });
       } catch (e) {
         if (e instanceof CoachError && e.network) return { sent, error: e.message };
         // Sunucu mesajı reddetti (ör. boş mesaj): tekrar denemek işe yaramaz, kutudan çıkar.
