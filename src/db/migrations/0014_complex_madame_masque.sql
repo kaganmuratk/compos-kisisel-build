@@ -1,0 +1,1 @@
+ALTER TABLE `cardio_sessions` ADD `elevation_gain_meters` real;

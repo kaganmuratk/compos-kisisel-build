@@ -1,0 +1,36 @@
+/*
+  Cross-Origin-Embedder-Policy: credentialless
+  Cross-Origin-Opener-Policy: same-origin
+
+/sw.js
+  Cache-Control: no-cache
+
+/manifest.webmanifest
+  Cache-Control: no-cache
+
+/compos-icon-512.png
+  Access-Control-Allow-Origin: *
+
+/shot-today.png
+  Access-Control-Allow-Origin: *
+
+/shot-nutrition.png
+  Access-Control-Allow-Origin: *
+
+/shot-history.png
+  Access-Control-Allow-Origin: *
+
+/shot-insights.png
+  Access-Control-Allow-Origin: *
+
+/shot-exercises.png
+  Access-Control-Allow-Origin: *
+
+/shot-body.png
+  Access-Control-Allow-Origin: *
+
+/shot-activity.png
+  Access-Control-Allow-Origin: *
+
+/shot-settings.png
+  Access-Control-Allow-Origin: *

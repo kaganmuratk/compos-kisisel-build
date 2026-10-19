@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Compos — Privacy Policy</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 720px; margin: 0 auto; padding: 32px 20px 80px; line-height: 1.6; color: #1a1a1a; background: #fff; }
+  h1 { font-size: 26px; margin-bottom: 4px; }
+  .updated { color: #666; font-size: 14px; margin-bottom: 32px; }
+  h2 { font-size: 18px; margin-top: 32px; }
+  ul { padding-left: 20px; }
+  a { color: #2563eb; }
+</style>
+</head>
+<body>
+  <p><a href="#zh">中文版本 / Chinese version</a></p>
+
+  <h1>Compos — Privacy Policy</h1>
+  <p class="updated">Last updated: October 17, 2026</p>
+  <p class="updated">Developer: Kağan Murat Kurt (HUAWEI Developers account name: Kagan Murat KURT)</p>
+
+  <p>Compos ("the app") is a personal fitness, nutrition and health-tracking application. This policy explains what data the app collects, why, and how it is stored.</p>
+
+  <h2>1. Data we collect</h2>
+  <p>When you create an account and use Compos, we collect and store the information you enter yourself, including:</p>
+  <ul>
+    <li>Account information (email address, authentication credentials) via Supabase Auth</li>
+    <li>Workout data: exercises, sets, reps, weight, RIR/RPE, notes</li>
+    <li>Cardio data: runs/activities, GPS routes (only if you record a route)</li>
+    <li>Nutrition data: foods logged, meals, nutrition goals</li>
+    <li>Daily check-ins: sleep, stress, body weight, water and coffee intake, supplements, notes</li>
+    <li>Media you attach to a workout (photos/videos), if you choose to add any</li>
+  </ul>
+
+  <h2>2. Health Connect / wearable data (optional)</h2>
+  <p>In app builds that include this optional feature (it is not part of the version distributed on HUAWEI AppGallery), if you choose to connect a supported smartwatch or fitness tracker through Android Health Connect, Compos can read health metrics such as heart rate, steps, sleep sessions, and body measurements to enrich your workout and daily-tracking history. This connection is entirely optional, requires your explicit permission for each data type, and can be revoked at any time from Health Connect's own settings.</p>
+
+  <h2>2a. Huawei Health data (optional)</h2>
+  <p>If you choose to connect your HUAWEI ID, Compos reads the following data from Huawei Health through HUAWEI Health Kit: daily steps, distance, altitude and calories; time spent in moderate- to high-intensity activity and active hours; your daily activity summary and the activity goals you set in Huawei Health; your workout records (type, start and end time, duration, distance and calories); per-workout details (heart rate, speed, pace, cadence, power, altitude, running form and swim stroke data); the GPS route of outdoor workouts; and up to one year of this historical data when you first connect. We use this data only to show your daily activity and to add your watch workouts and their details to your training history and progress charts in Compos. We do not write any data to Huawei Health, we do not share Huawei Health data with third parties, and we do not use it for advertising. You can disconnect at any time in Compos settings or in the Huawei Health app; after you disconnect, Compos stops reading new data, and you can ask us to delete the data already imported.</p>
+
+  <h2>3. How your data is stored</h2>
+  <p>Data is stored locally on your device (SQLite) and synced to our backend (Supabase, PostgreSQL) through a sync service (PowerSync) so it is available across your devices. Row-level security ensures each user can only access their own data. We do not sell your data, and we do not use third-party advertising or analytics SDKs. Compos is not offered in the Chinese mainland. Our database is hosted by Supabase in Frankfurt, Germany (AWS eu-central-1) and the sync service is hosted by PowerSync in Ireland (AWS eu-west-1), so your data may be processed in a country other than your country of residence.</p>
+
+  <h2>4. Data sharing</h2>
+  <p>We do not share your personal data with third parties, except with the infrastructure providers strictly necessary to run the service (Supabase for authentication and database hosting, and PowerSync for data synchronization). These providers do not use your data for their own purposes.</p>
+
+  <h2>5. Your rights</h2>
+  <p>You can request access to, correction of, or deletion of your data at any time by contacting us at the email below. Deleting your account removes your data from our servers.</p>
+
+  <h2>6. Medical disclaimer</h2>
+  <p>Compos is not a medical device and does not diagnose, treat, or prevent any condition. Data shown in the app (including any wearable-sourced metrics) is for personal tracking purposes only and should not be used as a substitute for professional medical advice.</p>
+
+  <h2>7. Contact</h2>
+  <p>Questions about this policy or your data can be sent to: <a href="mailto:kaganmuratyedek@gmail.com">kaganmuratyedek@gmail.com</a></p>
+
+  <hr style="margin: 48px 0; border: none; border-top: 1px solid #e5e5e5;" />
+
+  <h1 id="zh" lang="zh-Hans">Compos — 隐私政策</h1>
+  <p class="updated">最后更新：2026年10月17日</p>
+  <p class="updated">开发者：Kağan Murat Kurt（华为开发者联盟帐号名称：Kagan Murat KURT）</p>
+
+  <p lang="zh-Hans">Compos（以下简称"本应用"）是一款个人健身、营养与健康追踪应用。本政策说明本应用收集哪些数据、收集原因，以及数据的存储方式。</p>
+
+  <h2 lang="zh-Hans">1. 我们收集的数据</h2>
+  <p lang="zh-Hans">当您创建账户并使用 Compos 时，我们会收集并存储您自行输入的信息，包括：</p>
+  <ul lang="zh-Hans">
+    <li>账户信息（电子邮箱地址、身份验证凭据），通过 Supabase Auth 处理</li>
+    <li>训练数据：动作、组数、次数、重量、RIR/RPE、备注</li>
+    <li>有氧运动数据：跑步/活动记录、GPS 路线（仅在您记录路线时）</li>
+    <li>营养数据：记录的食物、餐次、营养目标</li>
+    <li>每日打卡数据：睡眠、压力、体重、饮水与咖啡摄入、补剂、备注</li>
+    <li>您为训练记录添加的媒体文件（照片/视频），如果您选择添加的话</li>
+  </ul>
+
+  <h2 lang="zh-Hans">2. Health Connect / 可穿戴设备数据（可选）</h2>
+  <p lang="zh-Hans">在包含此可选功能的应用版本中（华为应用市场分发的版本不包含该功能），如果您选择通过 Android Health Connect 连接受支持的智能手表或健身追踪设备，Compos 可以读取心率、步数、睡眠时段和身体测量等健康指标，以丰富您的训练和每日追踪记录。此连接完全为可选项，每种数据类型均需您明确授权，且您可随时在 Health Connect 自身的设置中撤销授权。</p>
+
+  <h2 lang="zh-Hans">2a. 华为运动健康数据（可选）</h2>
+  <p lang="zh-Hans">如果您选择关联您的华为帐号，Compos 将通过华为运动健康服务（HUAWEI Health Kit）从华为运动健康读取以下数据：每日步数、距离、海拔和热量；中高强度活动时长和活跃小时数；每日活动汇总以及您在华为运动健康中设置的活动目标；运动记录（运动类型、开始和结束时间、时长、距离和热量）；单次运动的详细数据（心率、速度、配速、步频、功率、海拔、跑姿以及游泳划水数据）；户外运动的 GPS 轨迹；以及您首次关联时最多一年的上述历史数据。我们仅将这些数据用于显示您的每日活动，并将您手表记录的运动及其详细数据添加到 Compos 的训练历史和进度图表中。我们不会向华为运动健康写入任何数据，不会与第三方共享华为运动健康数据，也不会将其用于广告。您可以随时在 Compos 设置或华为运动健康应用中取消关联；取消关联后，Compos 将停止读取新数据，您也可以要求我们删除已导入的数据。</p>
+
+  <h2 lang="zh-Hans">3. 数据存储方式</h2>
+  <p lang="zh-Hans">数据存储在您的设备本地（SQLite），并通过同步服务（PowerSync）同步到我们的后端（Supabase，PostgreSQL），以便您在多台设备间访问。行级安全策略（Row-level security）确保每位用户只能访问自己的数据。我们不会出售您的数据，也不使用第三方广告或分析 SDK。Compos 不在中国大陆地区提供服务。我们的数据库由 Supabase 托管于德国法兰克福（AWS eu-central-1），同步服务由 PowerSync 托管于爱尔兰（AWS eu-west-1），因此您的数据可能在您所在国家/地区以外的国家处理。</p>
+
+  <h2 lang="zh-Hans">4. 数据共享</h2>
+  <p lang="zh-Hans">除运行本服务所必需的基础设施提供商（用于身份验证和数据库托管的 Supabase，以及用于数据同步的 PowerSync）外，我们不会与任何第三方共享您的个人数据。这些提供商不会将您的数据用于其自身目的。</p>
+
+  <h2 lang="zh-Hans">5. 您的权利</h2>
+  <p lang="zh-Hans">您可以随时通过下方邮箱联系我们，请求访问、更正或删除您的数据。删除账户将从我们的服务器中移除您的数据。</p>
+
+  <h2 lang="zh-Hans">6. 医疗免责声明</h2>
+  <p lang="zh-Hans">Compos 不是医疗设备，不用于诊断、治疗或预防任何疾病。应用中显示的数据（包括任何来自可穿戴设备的指标）仅用于个人追踪目的，不能替代专业医疗建议。</p>
+
+  <h2 lang="zh-Hans">7. 联系方式</h2>
+  <p lang="zh-Hans">如对本政策或您的数据有任何疑问，请联系：<a href="mailto:kaganmuratyedek@gmail.com">kaganmuratyedek@gmail.com</a></p>
+</body>
+</html>

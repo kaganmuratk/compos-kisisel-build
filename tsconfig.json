@@ -1,0 +1,30 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    // Metro already resolves .native.ts/.web.ts per-platform at bundle time
+    // (src/db/powersync.native.ts vs .web.ts); tsc has no concept of a
+    // build target, so this just fixes which one type-checking follows —
+    // native, since that's this app's primary platform.
+    "moduleSuffixes": [".native", ".web", ""],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@/assets/*": [
+        "./assets/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ],
+  // Deno Edge Functions are a separate runtime (Deno globals, own Supabase
+  // deploy-time type-checking) — not part of this app's TypeScript project.
+  "exclude": [
+    "supabase/functions/**"
+  ]
+}

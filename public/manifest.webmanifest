@@ -1,0 +1,18 @@
+{
+  "name": "Compos",
+  "short_name": "Compos",
+  "description": "Günlük antrenman ve beslenme takibi.",
+  "lang": "tr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#208AEF",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

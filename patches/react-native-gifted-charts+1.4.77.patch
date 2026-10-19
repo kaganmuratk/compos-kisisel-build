@@ -1,0 +1,23 @@
+diff --git a/node_modules/react-native-gifted-charts/dist/LineChart/index.js b/node_modules/react-native-gifted-charts/dist/LineChart/index.js
+index 0000000..0000000 100644
+--- a/node_modules/react-native-gifted-charts/dist/LineChart/index.js
++++ b/node_modules/react-native-gifted-charts/dist/LineChart/index.js
+@@ -573,7 +573,7 @@
+             pointerEvents: pointerEvents,
+             isBarChart: false,
+             pointerIndex: pointerIndex,
+-            width: totalWidth,
++            width: (_a = props.width) !== null && _a !== void 0 ? _a : totalWidth,
+             screenWidth: (_a = props.width) !== null && _a !== void 0 ? _a : Math.min(totalWidth, (_b = props.parentWidth) !== null && _b !== void 0 ? _b : screenWidth) -
+                 yAxisLabelWidth,
+             hasDataSet: !!dataSet,
+@@ -1103,7 +1103,8 @@
+                         position: 'absolute',
+                         height: extendedContainerHeight + noOfSectionsBelowXAxis * stepHeight,
+                         bottom: 58 + labelsExtraHeight + xAxisLabelsVerticalShift - overflowTop,
+-                        // width: totalWidth,
++                        left: 0,
++                        width: totalWidth,
+                         zIndex: 20,
+                     }, children: [!stripOverPointer && renderStripAndLabel(), dataSet ? (renderPointer(0, true)) : (
+                         // dataSet.map((set, index) => renderPointer(index))

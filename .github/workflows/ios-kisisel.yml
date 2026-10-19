@@ -1,0 +1,45 @@
+# Compos Kişisel — imzasız iOS IPA (SideStore/iLoader ücretsiz Apple ID ile imzalayıp kurar).
+# Linux'ta iOS derlenemediği için GitHub'ın macOS makinesinde üretilir (Voca'daki yöntemin Expo uyarlaması).
+# Gerekli repo secret'ları: EXPO_PUBLIC_SUPABASE_URL, EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY, EXPO_PUBLIC_POWERSYNC_URL
+# Not: repo gizli olduğu için macOS dakikaları 10x sayılır; bu yüzden sadece etiketle tetiklenir:
+#   git tag ios-kisisel-1 && git push origin ios-kisisel-1
+# (workflow_dispatch ana dalda dosya ister; ana dala dokunmamak için etiket kullanılıyor.)
+name: iOS Kişisel
+on:
+  push:
+    tags: ["ios-kisisel-*"]
+jobs:
+  ios:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    env:
+      EXPO_PUBLIC_PERSONAL: "true"
+      EXPO_PUBLIC_SUPABASE_URL: ${{ secrets.EXPO_PUBLIC_SUPABASE_URL }}
+      EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      EXPO_PUBLIC_POWERSYNC_URL: ${{ secrets.EXPO_PUBLIC_POWERSYNC_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 11.13.1 }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Native iOS projesi üret
+        run: npx expo prebuild --platform ios --clean
+      - name: İmzasız derle
+        run: |
+          WS=$(ls -d ios/*.xcworkspace | head -1)
+          SCHEME=$(basename "$WS" .xcworkspace)
+          echo "workspace=$WS scheme=$SCHEME"
+          xcodebuild -workspace "$WS" -scheme "$SCHEME" -configuration Release -sdk iphoneos \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
+      - name: IPA paketle
+        run: |
+          APP=$(ls -d build/Build/Products/Release-iphoneos/*.app | head -1)
+          mkdir -p Payload && cp -R "$APP" Payload/
+          zip -qr ComposKisisel.ipa Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: compos-kisisel-ios
+          path: ComposKisisel.ipa
+          retention-days: 14

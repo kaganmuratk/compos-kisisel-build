@@ -1,0 +1,1 @@
+ALTER TABLE `exercises` ADD `weight_mode` text DEFAULT 'kg' NOT NULL;
