@@ -4,7 +4,7 @@ import { ColorValue, Platform, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
 
 import { WEB_CONTENT_MAX_WIDTH } from '@/components/themed-view';
-import { Fonts } from '@/constants/theme';
+import { Fonts, MAX_FONT_SCALE } from '@/constants/theme';
 import { useNutritionPalette } from '@/components/nutrition-ui';
 import { powerSyncDb } from '@/db/powersync';
 import { IS_PERSONAL } from '@/lib/coach-client';
@@ -86,7 +86,13 @@ export default function TabsLayout() {
         tabBarHideOnKeyboard: true,
         tabBarStyle,
         tabBarItemStyle: styles.item,
-        tabBarLabelStyle: styles.label,
+        // Own label so a long one ("Beslenme") shrinks to fit a narrow tab at a
+        // large text size instead of being cut to "Beslen…".
+        tabBarLabel: ({ color, children }) => (
+          <Text numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} maxFontSizeMultiplier={MAX_FONT_SCALE} style={[styles.label, { color }]}>
+            {children}
+          </Text>
+        ),
       }}>
       <Tabs.Screen
         name="index"

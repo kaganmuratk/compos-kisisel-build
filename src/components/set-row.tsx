@@ -1,18 +1,29 @@
 import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { FullscreenImageViewer } from '@/components/fullscreen-image-viewer';
 import { PaletteText as ThemedText, useNutritionPalette } from '@/components/nutrition-ui';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useSessionExercises } from '@/db/queries/workout';
 import { alertMessage } from '@/lib/alert';
+import { useFontScale } from '@/hooks/use-font-scale';
 import { useT } from '@/lib/i18n';
 import { pickMedia } from '@/lib/media';
 import { fromKg, toKg, type WeightUnit } from '@/lib/units';
+import { TextInput } from '@/components/text-input';
+import { KeyboardDoneBar } from '@/components/keyboard-done-bar';
 
-// Reps/effort (RIR/RPE) — sized for 3 digits.
-const INPUT_BOX_WIDTH = 46;
+// Sized to the digits each box actually holds (IBM Plex Mono ≈ 0.6em per
+// digit + 10px padding): reps up to 3 digits at 18px, RIR/RPE up to 3
+// characters ("7.5") at 14px. Every width is multiplied by the text-size
+// factor in createStyles, so these only need to fit the default size.
+const REPS_INPUT_WIDTH = 42;
+const EFFORT_INPUT_WIDTH = 36;
+// Natural width of the workout row's content at text-size factor 1: set
+// column 32 + weight 54 + 8 + "KG" 15 + 14 + "×" 9 + 14 + reps 42, then
+// 8 + "RIR" 21 + 4 + effort 36. The ✓ (38) and TOOLS (54) add to it.
+const WORKOUT_ROW_BASE_WIDTH = 257;
 // Weight needs more room: 3-digit values (e.g. "102") were clipped at the
 // old shared width. Sized for 4 digits.
 const WEIGHT_INPUT_WIDTH = 54;
@@ -127,7 +138,17 @@ export function SetRow({
 }) {
   const { t } = useT();
   const palette = useNutritionPalette();
-  const styles = useMemo(() => createStyles(palette), [palette]);
+  const fontScale = useFontScale();
+  const styles = useMemo(() => createStyles(palette, fontScale), [palette, fontScale]);
+  // The workout row sizes its own text instead of leaving it to the OS: it
+  // follows the text-size setting (fontScale) but never past what fits the
+  // row's measured width, so it's one clean line on every phone width and
+  // text size — fixed sizes either overlapped (reps under RIR) or clipped
+  // the digits on a narrow screen at a large setting (2026-10-23).
+  const [rowContentWidth, setRowContentWidth] = useState(0);
+  const rowBaseWidth = WORKOUT_ROW_BASE_WIDTH + (target ? 38 : 0) + (showSetTools ? 54 : 0);
+  const rowScale = rowContentWidth > 0 ? Math.min(fontScale, rowContentWidth / rowBaseWidth) : fontScale;
+  const rowStyles = useMemo(() => createWorkoutRowStyles(palette, rowScale), [palette, rowScale]);
   const workoutAccent = accentColor ?? defaultCategoryColor;
   // Both variants now resolve colors from the same theme-aware palette —
   // 'workout' used to build its own fixed-dark color set (a leftover from
@@ -235,33 +256,34 @@ export function SetRow({
             // EFFORT headers sit exactly above their values.
             paddingHorizontal: Spacing.three,
           },
-        ]}>
-        <Pressable accessibilityLabel={`Set ${sideLabel ?? set.setNumber} actions`} onPress={() => variant === 'workout' && setShowTools(true)} hitSlop={8} style={styles.setNumberColumn}>
-          <ThemedText type="small" themeColor="textSecondary" style={[styles.setNumber, variant === 'workout' && { color: annotationColor ?? theme.textSecondary }]}>
+        ]}
+        onLayout={variant === 'workout' ? (event) => setRowContentWidth(Math.floor(event.nativeEvent.layout.width - 2 * Spacing.three)) : undefined}>
+        <Pressable accessibilityLabel={`Set ${sideLabel ?? set.setNumber} actions`} onPress={() => variant === 'workout' && setShowTools(true)} hitSlop={8} style={variant === 'workout' ? rowStyles.setNumberColumn : styles.setNumberColumn}>
+          <ThemedText type="small" themeColor="textSecondary" allowFontScaling={variant !== 'workout'} style={[styles.setNumber, variant === 'workout' && [rowStyles.setNumber, { color: annotationColor ?? theme.textSecondary }]]}>
             {sideLabel ?? set.setNumber}
           </ThemedText>
         </Pressable>
         {variant === 'workout' ? (
           <>
-            <View style={styles.metricsCell}>
-              <View style={styles.weightMetric}>
-                <TextInput value={weight} onChangeText={setWeight} onEndEditing={saveWeight} onBlur={saveWeight} keyboardType="decimal-pad" placeholder={targetWeight} placeholderTextColor={theme.textSecondary} style={[styles.weightInput, { color: theme.text }]} />
-                <ThemedText style={styles.metricUnit}>{metricUnit}</ThemedText>
+            <View style={rowStyles.metricsCell}>
+              <View style={rowStyles.weightMetric}>
+                <TextInput allowFontScaling={false} value={weight} onChangeText={setWeight} onEndEditing={saveWeight} onBlur={saveWeight} keyboardType="decimal-pad" placeholder={targetWeight} placeholderTextColor={theme.textSecondary} style={[rowStyles.weightInput, { color: theme.text }]} />
+                <ThemedText allowFontScaling={false} style={rowStyles.metricUnit}>{metricUnit}</ThemedText>
               </View>
-              <ThemedText style={styles.metricMultiply}>×</ThemedText>
-              <TextInput value={reps} onChangeText={setReps} onEndEditing={saveReps} onBlur={saveReps} keyboardType="decimal-pad" placeholder={targetReps} placeholderTextColor={theme.textSecondary} style={[styles.repsInput, { color: theme.text }]} />
+              <ThemedText allowFontScaling={false} style={rowStyles.metricMultiply}>×</ThemedText>
+              <TextInput allowFontScaling={false} value={reps} onChangeText={setReps} onEndEditing={saveReps} onBlur={saveReps} keyboardType="decimal-pad" placeholder={targetReps} placeholderTextColor={theme.textSecondary} style={[rowStyles.repsInput, { color: theme.text }]} />
             </View>
-            <View style={styles.effortCell}>
-              <ThemedText style={[styles.effortPrefix, { color: theme.textSecondary }]}>{repMetric.toUpperCase()}</ThemedText>
-              <TextInput value={repMetricValue} onChangeText={setRepMetricValue} onEndEditing={saveRepMetricValue} onBlur={saveRepMetricValue} keyboardType="decimal-pad" placeholder={targetEffort} placeholderTextColor={theme.textSecondary} style={[styles.effortInput, { color: repMetricValue ? theme.text : theme.textSecondary }]} />
+            <View style={rowStyles.effortCell}>
+              <ThemedText allowFontScaling={false} style={[rowStyles.effortPrefix, { color: theme.textSecondary }]}>{repMetric.toUpperCase()}</ThemedText>
+              <TextInput allowFontScaling={false} value={repMetricValue} onChangeText={setRepMetricValue} onEndEditing={saveRepMetricValue} onBlur={saveRepMetricValue} keyboardType="decimal-pad" placeholder={targetEffort} placeholderTextColor={theme.textSecondary} style={[rowStyles.effortInput, { color: repMetricValue ? theme.text : theme.textSecondary }]} />
             </View>
             {target && (
-              <Pressable accessibilityLabel={showAccept ? 'Hedefi yaptım' : 'Set kaydedildi'} disabled={!showAccept} onPress={acceptTarget} hitSlop={8} style={[styles.acceptButton, { borderColor: showAccept ? theme.accent : 'transparent' }]}>
-                <ThemedText style={[styles.acceptText, { color: showAccept ? theme.accent : theme.textSecondary }]}>✓</ThemedText>
+              <Pressable accessibilityLabel={showAccept ? 'Hedefi yaptım' : 'Set kaydedildi'} disabled={!showAccept} onPress={acceptTarget} hitSlop={8} style={[rowStyles.acceptButton, { borderColor: showAccept ? theme.accent : 'transparent' }]}>
+                <ThemedText allowFontScaling={false} style={[rowStyles.acceptText, { color: showAccept ? theme.accent : theme.textSecondary }]}>✓</ThemedText>
               </Pressable>
             )}
-            {showSetTools && <Pressable accessibilityLabel="Set tools" onPress={() => setShowTools((open) => !open)} hitSlop={8} style={styles.toolsButton}>
-              <ThemedText style={[styles.actionCode, { color: showTools ? theme.accent : theme.textSecondary }]}>TOOLS</ThemedText>
+            {showSetTools && <Pressable accessibilityLabel="Set tools" onPress={() => setShowTools((open) => !open)} hitSlop={8} style={rowStyles.toolsButton}>
+              <ThemedText allowFontScaling={false} style={[rowStyles.actionCode, { color: showTools ? theme.accent : theme.textSecondary }]}>TOOLS</ThemedText>
             </Pressable>}
           </>
         ) : (
@@ -295,6 +317,7 @@ export function SetRow({
               </Pressable>
             </KeyboardAvoidingView>
           </Pressable>
+          <KeyboardDoneBar placement="modal" />
         </Modal>
       )}
       {showNote && !(variant === 'workout' && showTools) && (
@@ -340,7 +363,8 @@ function SetActions({
   annotationColorOverride?: string;
 }) {
   const palette = useNutritionPalette();
-  const styles = useMemo(() => createStyles(palette), [palette]);
+  const fontScale = useFontScale();
+  const styles = useMemo(() => createStyles(palette, fontScale), [palette, fontScale]);
   const actionStyle = expanded ? styles.expandedAction : undefined;
   const labelStyle = expanded ? styles.expandedActionCode : styles.actionCode;
   return (
@@ -358,7 +382,10 @@ function SetActions({
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+// `fs` is the capped OS text-size factor (useFontScale): every fixed width
+// below holds text, so it grows with it — at a fixed width a larger text
+// setting pushed the reps digits under the RIR label (2026-10-20 report).
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>, fs: number) => StyleSheet.create({
   setRow: {
     width: '100%',
     minWidth: 0,
@@ -367,6 +394,10 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
     gap: Spacing.two,
   },
   workoutRow: {
+    // 'auto', not the base row's '100%': this row uses negative horizontal
+    // margins to bleed its tint to the card edge, and a fixed 100% width just
+    // shifted it left instead of widening it, losing that width on the right.
+    width: 'auto',
     gap: 0,
     minHeight: 52,
     paddingVertical: Spacing.three,
@@ -374,7 +405,7 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
     borderBottomColor: palette.border,
   },
   setNumberColumn: {
-    width: 32,
+    width: 32 * fs,
   },
   setNumber: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 14, lineHeight: 18 },
   setInputColumn: {
@@ -398,33 +429,6 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
     paddingHorizontal: 4,
     paddingVertical: 5,
   },
-  // Fixed-width boxes here used to create content-dependent gaps ("10 KG"
-  // left a wide gap before ×, "100 KG" almost none) — explicit `gap` on
-  // each level keeps the spacing constant regardless of digit count.
-  metricsCell: { flex: 1, flexDirection: 'row', alignItems: 'baseline', gap: 14 },
-  weightMetric: { flexDirection: 'row', alignItems: 'baseline', gap: 8 },
-  // Explicit widths (not flex/minWidth) — react-native-web otherwise lets the
-  // <input> stretch to fill the row, which pushed "10" far from the METRICS
-  // header and made the KG/× gap balloon on short values.
-  // Left-aligned so the digits start flush with the box's left edge — same
-  // spot the METRICS header text starts. Right-aligned used to push short
-  // values like "10" toward the far side of the box, away from the header.
-  // A visible box (not just an underline) — an empty input with no
-  // affordance at all read as blank space, not a tappable field, until you
-  // happened to tap it. Transparent background, border only. Weight gets
-  // its own wider width (WEIGHT_INPUT_WIDTH, fits 4 digits) — 3-digit
-  // values were clipped at the shared INPUT_BOX_WIDTH used here before;
-  // reps/effort use INPUT_BOX_WIDTH (fits 3 digits).
-  weightInput: { width: WEIGHT_INPUT_WIDTH, paddingVertical: 3, paddingHorizontal: 5, fontFamily: Fonts.technical, fontSize: 18, textAlign: 'left', borderWidth: 1, borderColor: palette.border, borderRadius: 4, backgroundColor: 'transparent', fontVariant: ['tabular-nums'] },
-  repsInput: { width: INPUT_BOX_WIDTH, paddingVertical: 3, paddingHorizontal: 5, fontFamily: Fonts.technical, fontSize: 18, textAlign: 'left', borderWidth: 1, borderColor: palette.border, borderRadius: 4, backgroundColor: 'transparent', fontVariant: ['tabular-nums'] },
-  metricMultiply: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 14 },
-  metricUnit: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 12, lineHeight: 18, letterSpacing: 0 },
-  effortCell: { width: 78, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: 4 },
-  effortPrefix: { fontFamily: Fonts.technical, fontSize: 11, letterSpacing: 0.2 },
-  effortInput: { width: INPUT_BOX_WIDTH, paddingVertical: 3, paddingHorizontal: 5, fontFamily: Fonts.technical, fontSize: 14, textAlign: 'right', borderWidth: 1, borderColor: palette.border, borderRadius: 4, backgroundColor: 'transparent', fontVariant: ['tabular-nums'] },
-  acceptButton: { width: 34, height: 34, borderRadius: 17, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', marginRight: Spacing.one },
-  acceptText: { fontSize: 16, fontWeight: '700' },
-  toolsButton: { width: 54, alignItems: 'center', justifyContent: 'center', minHeight: 44, borderLeftWidth: StyleSheet.hairlineWidth, borderColor: palette.border },
   modalBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.66)' },
   modalBackdropInner: { flex: 1, justifyContent: 'flex-end' },
   toolsModal: { width: '100%', borderWidth: 1, borderBottomWidth: 0, borderTopLeftRadius: Radius.lg, borderTopRightRadius: Radius.lg, padding: Spacing.three, gap: Spacing.three },
@@ -433,9 +437,11 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
   expandedAction: { flexGrow: 1, minWidth: 120, minHeight: 64, alignItems: 'flex-start', justifyContent: 'center', paddingHorizontal: Spacing.three, borderWidth: 1, borderColor: palette.border, backgroundColor: palette.raised },
   closeTools: { alignSelf: 'stretch', alignItems: 'center', borderTopWidth: StyleSheet.hairlineWidth, borderColor: palette.border, paddingTop: Spacing.two },
   closeToolsText: { color: palette.blue, fontFamily: Fonts.technical, fontSize: 10, letterSpacing: 0.8 },
-  modalNoteInput: { borderWidth: StyleSheet.hairlineWidth, minHeight: 92, padding: Spacing.two, fontSize: 15, textAlignVertical: 'top' },
+  // maxHeight: a long note scrolls inside the box instead of growing the
+  // sheet up past the top of the screen with the keyboard open.
+  modalNoteInput: { borderWidth: StyleSheet.hairlineWidth, minHeight: 92, maxHeight: 180, padding: Spacing.two, fontSize: 15, textAlignVertical: 'top' },
   setTrailingActions: {
-    width: 86,
+    width: 86 * fs,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
@@ -457,4 +463,35 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
     minHeight: 60,
     textAlignVertical: 'top',
   },
+});
+
+// The workout row's own text and boxes, all multiplied by `s` — SetRow's
+// rowScale: the OS text-size factor, capped to what fits the measured row
+// (see WORKOUT_ROW_BASE_WIDTH). The row's Text/TextInputs set
+// allowFontScaling={false}, since the OS factor is already inside `s`.
+const createWorkoutRowStyles = (palette: ReturnType<typeof useNutritionPalette>, s: number) => StyleSheet.create({
+  setNumberColumn: { width: 32 * s },
+  setNumber: { fontSize: 14 * s, lineHeight: 18 * s },
+  // Explicit `gap` on each level (not fixed-width boxes) keeps the spacing
+  // constant regardless of digit count — fixed boxes left a wide gap after
+  // "10 KG" and almost none after "100 KG".
+  metricsCell: { flex: 1, flexDirection: 'row', alignItems: 'baseline', gap: 14 * s },
+  weightMetric: { flexDirection: 'row', alignItems: 'baseline', gap: 8 * s },
+  // Explicit widths (not flex/minWidth) — react-native-web otherwise lets the
+  // <input> stretch to fill the row, which pushed "10" far from the METRICS
+  // header and made the KG/× gap balloon on short values.
+  // Left-aligned so the digits start flush with the box's left edge — same
+  // spot the METRICS header text starts. A visible box (not just an
+  // underline) — an empty input with no affordance read as blank space.
+  weightInput: { width: WEIGHT_INPUT_WIDTH * s, paddingVertical: 3, paddingHorizontal: 5, fontFamily: Fonts.technical, fontSize: 18 * s, textAlign: 'left', borderWidth: 1, borderColor: palette.border, borderRadius: 4, backgroundColor: 'transparent', fontVariant: ['tabular-nums'] },
+  repsInput: { width: REPS_INPUT_WIDTH * s, paddingVertical: 3, paddingHorizontal: 5, fontFamily: Fonts.technical, fontSize: 18 * s, textAlign: 'left', borderWidth: 1, borderColor: palette.border, borderRadius: 4, backgroundColor: 'transparent', fontVariant: ['tabular-nums'] },
+  metricMultiply: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 14 * s },
+  metricUnit: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 12 * s, lineHeight: 18 * s, letterSpacing: 0 },
+  effortCell: { marginLeft: Spacing.two * s, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', gap: 4 * s },
+  effortPrefix: { fontFamily: Fonts.technical, fontSize: 11 * s, letterSpacing: 0.2 },
+  effortInput: { width: EFFORT_INPUT_WIDTH * s, paddingVertical: 3, paddingHorizontal: 5, fontFamily: Fonts.technical, fontSize: 14 * s, textAlign: 'right', borderWidth: 1, borderColor: palette.border, borderRadius: 4, backgroundColor: 'transparent', fontVariant: ['tabular-nums'] },
+  acceptButton: { width: 34 * s, height: 34 * s, borderRadius: 17 * s, borderWidth: 1.5, alignItems: 'center', justifyContent: 'center', marginRight: Spacing.one * s },
+  acceptText: { fontSize: 16 * s, fontWeight: '700' },
+  toolsButton: { width: 54 * s, alignItems: 'center', justifyContent: 'center', minHeight: 44, borderLeftWidth: StyleSheet.hairlineWidth, borderColor: palette.border },
+  actionCode: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 9 * s, lineHeight: 14 * s, letterSpacing: 0.3 },
 });

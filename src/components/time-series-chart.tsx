@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Platform, StyleSheet, useWindowDimensions, View } from 'react-native';
 // Import the LineChart submodule directly (not the package's root barrel) —
 // same reason as analysis/body/[metric].tsx: the root barrel also exports
@@ -10,6 +10,7 @@ import { LineChart } from 'react-native-gifted-charts/dist/LineChart';
 import { ThemedText } from '@/components/themed-text';
 import { WEB_CONTENT_MAX_WIDTH } from '@/components/themed-view';
 import { Radius, Spacing } from '@/constants/theme';
+import { useFontScale } from '@/hooks/use-font-scale';
 import { useCardShadow, useTheme } from '@/hooks/use-theme';
 import { computeChartScale, type ChartMetricKind } from '@/lib/chart-scale';
 import { useChartPointerConfig } from '@/lib/chart-pointer';
@@ -72,24 +73,43 @@ export function TimeSeriesChart({
     [...data, ...(secondaryData ?? [])].map((d) => d.value),
     kind
   );
-  const chartWidth = width - Spacing.four * 2 - Spacing.four * 2 - 40;
-  // 0, not a few px of "safety" padding: gifted-charts positions each
-  // point at initialSpacing + spacing*index but centers that point's
-  // x-axis label at spacing*index — i.e. any nonzero initialSpacing shifts
-  // every label left of its point by exactly that amount. 0 is the only
-  // value where they actually line up.
-  const initialSpacing = 0;
+  // Axis text follows the OS text size like the rest of the app (capped by
+  // useFontScale); gifted-charts' own font scaling is turned off below so it
+  // isn't applied twice, and the y-axis column grows with its labels.
+  const fontScale = useFontScale();
+  const yAxisLabelWidth = 36 * fontScale;
+  // Measured, not derived from the window width: the card sits inside
+  // different paddings on different screens, and a guessed width ran the
+  // last point/label past the card edge on some of them.
+  const [plotAreaWidth, setPlotAreaWidth] = useState(0);
+  // Room at both ends for the edge points' dots and their (centered) x-axis
+  // labels. With 0 here the first point sat exactly on the y-axis, half its
+  // dot hidden behind it, and the first/last date labels were cut in half
+  // (2026-10-23). The x-axis labels follow initialSpacing on their own.
+  const edgeInset = 18 * fontScale;
+  const initialSpacing = edgeInset;
+  // The right-hand room is left inside `width` (spacing below), not given as
+  // endSpacing: gifted-charts draws endSpacing past `width` but clips the
+  // x-axis labels at `width`, which cut the last date label in half.
   const endSpacing = 0;
-  // Without an explicit spacing, LineChart falls back to a fixed default
-  // per-point spacing and lets its internal ScrollView grow wider than the
-  // card to fit every point — the chart then only "reveals" the rest as you
-  // drag right instead of showing the whole series at once. Deriving spacing
-  // from the point count keeps the full series inside `chartWidth` always.
-  const spacing = data.length > 1 ? (chartWidth - initialSpacing - endSpacing) / (data.length - 1) : 0;
-  const axisLabelStyle = { color: theme.textSecondary, fontSize: 10 };
+  const chartWidth = (plotAreaWidth || width - Spacing.four * 4) - yAxisLabelWidth;
+  const spacing = data.length > 1 ? (chartWidth - initialSpacing - edgeInset) / (data.length - 1) : 0;
+  const axisLabelStyle = { color: theme.textSecondary, fontSize: 10 * fontScale };
+  // gifted-charts boxes each x-axis label to the point spacing, which on a
+  // dense series is narrower than a date — it truncated them to "29…". The
+  // label renders in its own wider box (2 × edgeInset, the room left at the
+  // chart ends), centered on its point.
+  const axisLabelWidth = edgeInset * 2;
   const displayData = data.map((point) => ({
     ...point,
     label: point.axisLabel ?? '',
+    labelComponent: point.axisLabel
+      ? () => (
+          <ThemedText allowFontScaling={false} numberOfLines={1} style={[axisLabelStyle, { width: axisLabelWidth, marginLeft: (spacing - axisLabelWidth) / 2, textAlign: 'center' }]}>
+            {point.axisLabel}
+          </ThemedText>
+        )
+      : undefined,
     originalLabel: point.label,
   }));
   const displaySecondaryData = secondaryData?.map((point, i) => ({ ...point, label: '', originalLabel: data[i]?.label ?? point.label }));
@@ -165,7 +185,7 @@ export function TimeSeriesChart({
         {unit ? `${title.toUpperCase()} (${unit})` : title.toUpperCase()}
       </ThemedText>
       {data.length >= 2 ? (
-        <View ref={chartWrapperRef}>
+        <View ref={chartWrapperRef} onLayout={(event) => setPlotAreaWidth(Math.floor(event.nativeEvent.layout.width))}>
         <LineChart
           data={displayData}
           data2={displaySecondaryData}
@@ -195,7 +215,9 @@ export function TimeSeriesChart({
           // worth an intro animation over — off avoids the whole class of
           // render-order bugs instead of chasing each one.
           isAnimated={false}
-          yAxisTextStyle={{ color: theme.textSecondary, fontSize: 10 }}
+          yAxisTextStyle={{ color: theme.textSecondary, fontSize: 10 * fontScale }}
+          yAxisLabelWidth={yAxisLabelWidth}
+          allowFontScaling={false}
           xAxisLabelTextStyle={axisLabelStyle}
           xAxisColor={theme.border}
           yAxisColor={theme.border}

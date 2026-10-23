@@ -1,12 +1,14 @@
 import { Stack } from 'expo-router';
 
 import { useTheme } from '@/hooks/use-theme';
+import { modalScreenLayout } from '@/components/keyboard-done-bar';
 
 export default function ProgramsLayout() {
   const theme = useTheme();
 
   return (
     <Stack
+      screenLayout={modalScreenLayout}
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: theme.background },

@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useNutritionPalette } from '@/components/nutrition-ui';
@@ -12,6 +13,8 @@ import { usePrograms, useStartSessionFromDay } from '@/db/queries/programs';
 import { useStartSession, useTodaySessionCount } from '@/db/queries/workout';
 import { defaultSessionTitle, getTodayDateString } from '@/lib/date';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
+import { KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
 
 export default function StartWorkoutScreen() {
   const { t } = useT();
@@ -50,7 +53,7 @@ export default function StartWorkoutScreen() {
           accentColor={palette.blue}
           backHref="/(tabs)"
         />
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+        <KeyboardAwareScrollView bottomOffset={KEYBOARD_BAR_CLEARANCE} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
           <View style={styles.fieldCard}>
             <ThemedText style={styles.fieldLabel}>{t('sessionName').toUpperCase()}</ThemedText>
             <TextInput value={name} onChangeText={(text) => { setName(text); setNameTouched(true); }} placeholder={t('workoutName')} placeholderTextColor={palette.muted} style={styles.titleInput} />
@@ -81,7 +84,7 @@ export default function StartWorkoutScreen() {
             <ThemedText style={styles.disclosureAction}>{showNote ? '−' : '+'}</ThemedText>
           </Pressable>
           {showNote && <TextInput value={notes} onChangeText={setNotes} placeholder={t('howFeelToday')} placeholderTextColor={palette.muted} style={styles.noteInput} multiline />}
-        </ScrollView>
+        </KeyboardAwareScrollView>
         <Pressable onPress={start} disabled={starting} style={[styles.startButton, starting && styles.buttonDisabled]}>{starting ? <ActivityIndicator color={palette.background} /> : <ThemedText style={styles.startLabel}>{t('startWorkoutLabel').toUpperCase()}</ThemedText>}</Pressable>
       </SafeAreaView>
     </ThemedView>

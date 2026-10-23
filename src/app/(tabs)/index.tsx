@@ -1,7 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
-import { Animated, Alert, AppState, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Animated, Alert, AppState, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView, type KeyboardAwareScrollViewRef } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SwipeableRow } from '@/components/swipeable-row';
@@ -9,7 +10,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ThemedText as AppThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Fonts, Spacing } from '@/constants/theme';
-import { nutritionPalette, TrashIcon } from '@/components/nutrition-ui';
+import { ChevronIcon, nutritionPalette, TrashIcon } from '@/components/nutrition-ui';
 import { useActiveCardioSession, useImportCardioSessionFromHealthConnect } from '@/db/queries/cardio';
 import {
   useAddCoffee,
@@ -59,6 +60,8 @@ import { recordWatchSessionImported } from '@/lib/watch-import-store';
 import { summarizeNutritionLogs } from '@/lib/nutrition';
 import type { ActivityType } from '@/lib/activity-type';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
+import { KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
 
 const WATER_QUICK_ADD_ML = [200, 330, 500];
 const STRESS_LEVELS = Array.from({ length: 5 }, (_, i) => i + 1);
@@ -201,7 +204,7 @@ export default function TodayScreen() {
   const [dayNote, setDayNote] = useState('');
   const [waterUndo, setWaterUndo] = useState<{ id: string; amountMl: number } | null>(null);
   const waterUndoOpacity = useRef(new Animated.Value(0)).current;
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<KeyboardAwareScrollViewRef>(null);
 
   // Tabs stay mounted when you switch away, so without this the scroll
   // position from before you left is still there when you come back —
@@ -519,6 +522,10 @@ export default function TodayScreen() {
     ...(uncategorizedSupplements.length > 0 ? [{ id: 'uncategorized', label: t('uncategorized'), isCustom: false, accentColor: theme.border, supplements: uncategorizedSupplements }] : []),
   ];
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
+  // Collapsed by default: with 5-10 supplements the full checklist took over
+  // the screen (2026-10-19). The header still shows how many are taken.
+  const [supplementsOpen, setSupplementsOpen] = useState(false);
+  const takenSupplementCount = routineSupplements.filter((supplement) => todaySupplementById.has(supplement.id)).length;
   const [categoryNameDraft, setCategoryNameDraft] = useState('');
   const renameCategory = useRenameSupplementCategory();
   const saveCategoryName = (id: string) => {
@@ -616,10 +623,10 @@ export default function TodayScreen() {
           <ThemedText style={styles.wordmark}>COMPOS</ThemedText>
           <ThemedText style={styles.topBarLabel}>{t('dailySummary').toUpperCase()}</ThemedText>
         </View>
-        <ScrollView ref={scrollRef} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <KeyboardAwareScrollView ref={scrollRef} bottomOffset={KEYBOARD_BAR_CLEARANCE} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.titleBlock}>
             <ThemedText style={styles.dateLabel}>{todayLabel.toUpperCase()}</ThemedText>
-            <ThemedText style={styles.todayTitle}>{t('today').toUpperCase()}</ThemedText>
+            <ThemedText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={styles.todayTitle}>{t('today').toUpperCase()}</ThemedText>
           </View>
 
           <View style={styles.startButtonRow}>
@@ -858,13 +865,24 @@ export default function TodayScreen() {
 
           <View style={[cardStyle, styles.supplementCard]}>
             <View style={styles.waterHeader}>
-              <ThemedText type="smallBold" themeColor="textSecondary">{t('supplementList').toUpperCase()}</ThemedText>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ expanded: supplementsOpen }}
+                onPress={() => setSupplementsOpen((open) => !open)}
+                hitSlop={10}
+                style={styles.supplementToggle}>
+                <ThemedText type="smallBold" themeColor="textSecondary">{t('supplementList').toUpperCase()}</ThemedText>
+                {routineSupplements.length > 0 && (
+                  <ThemedText style={styles.supplementSummary}>{takenSupplementCount}/{routineSupplements.length} {t('taken').toUpperCase()}</ThemedText>
+                )}
+                <ChevronIcon size={16} color={theme.textSecondary} direction={supplementsOpen ? 'up' : 'down'} />
+              </Pressable>
               <Pressable accessibilityLabel="Create supplement" onPress={() => router.push('/supplement/new')} hitSlop={10}>
                 <ThemedText style={styles.supplementAddLabel}>{t('new').toUpperCase()}</ThemedText>
               </Pressable>
             </View>
 
-            {routineSupplements.length > 0 || supplementCategories.length > 0 ? (
+            {!supplementsOpen ? null : routineSupplements.length > 0 || supplementCategories.length > 0 ? (
               <View style={styles.supplementGroupList}>
                 {supplementGroups.map((group) => (
                   <View key={group.id} style={[styles.supplementCategoryCard, { borderLeftColor: group.accentColor }]}>
@@ -925,7 +943,7 @@ export default function TodayScreen() {
               <ThemedText style={styles.supplementEmpty}>{t('createRoutineHere').toUpperCase()}</ThemedText>
             )}
           </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -1618,10 +1636,17 @@ const createStyles = (theme: TodayTheme) => {
     fontSize: 9,
     letterSpacing: 1.1,
   },
+  // Same orange stripe + tint as the History day view's supplement section,
+  // so the section reads the same in both places.
   supplementCard: {
     padding: Spacing.two,
     gap: Spacing.two,
+    borderLeftWidth: 3,
+    borderLeftColor: '#FB923C',
+    backgroundColor: 'rgba(251, 146, 60, 0.035)',
   },
+  supplementToggle: { flex: 1, flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: Spacing.two },
+  supplementSummary: { color: '#FB923C', fontFamily: Fonts.technical, fontSize: 10, letterSpacing: 0.5 },
   supplementAddLabel: {
     color: theme.accent,
     fontFamily: Fonts.technical,

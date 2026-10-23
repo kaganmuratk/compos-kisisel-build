@@ -118,7 +118,7 @@ export default function NutritionPlanDetailScreen() {
   const dropZones = useSectionDropZones();
   const apply = async () => {
     await applyPlan.mutateAsync(planId);
-    router.push('/nutrition');
+    router.dismissTo('/nutrition');
   };
 
   const groups = categories.map((category) => ({ ...category, items: meals.filter((meal) => meal.mealType === category.id) }));

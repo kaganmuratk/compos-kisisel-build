@@ -1,11 +1,12 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { NutritionPage, NutritionPrimaryButton, PaletteText as ThemedText, useNutritionPalette, useNutritionUi } from '@/components/nutrition-ui';
 import { Spacing } from '@/constants/theme';
 import { useAddNutritionPlan } from '@/db/queries/nutrition-plans';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
 
 export default function NewNutritionPlanScreen() {
   const nutritionUi = useNutritionUi();

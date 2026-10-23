@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
-import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedView } from '@/components/themed-view';
@@ -14,6 +15,8 @@ import { addDaysToDateString, formatDayMonth, getTodayDateString } from '@/lib/d
 import { DirectionsError, fetchWalkingRoute, type LatLng } from '@/lib/directions';
 import { useT } from '@/lib/i18n';
 import { PlacesError, searchPlaces, getPlaceLocation, type PlaceSuggestion } from '@/lib/places';
+import { TextInput } from '@/components/text-input';
+import { KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
 
 type PickedPlace = LatLng & { text: string };
 
@@ -108,7 +111,7 @@ export default function AddManualRunScreen() {
           accentColor={palette.green}
         />
 
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+        <KeyboardAwareScrollView bottomOffset={KEYBOARD_BAR_CLEARANCE} contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
           <View style={styles.field}>
             <ThemedText type="small" themeColor="textSecondary">
               {t('date').toUpperCase()}
@@ -247,7 +250,7 @@ export default function AddManualRunScreen() {
               multiline
             />
           )}
-        </ScrollView>
+        </KeyboardAwareScrollView>
 
         {Platform.OS === 'web' ? (
           <button

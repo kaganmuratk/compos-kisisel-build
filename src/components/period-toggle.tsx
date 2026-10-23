@@ -29,8 +29,10 @@ export function PeriodToggle({ value, onChange, disabled = [], hidden = [] }: { 
 const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
   toggle: { flexDirection: 'row', borderWidth: StyleSheet.hairlineWidth, borderColor: palette.border, borderRadius: Radius.sm, overflow: 'hidden' },
   option: { minWidth: 30, minHeight: 28, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.one },
-  selected: { backgroundColor: palette.raised },
+  // Filled accent, same as ShareModeToggle — the old raised-surface fill was
+  // too close to the unselected state to tell which option was active.
+  selected: { backgroundColor: palette.blue },
   disabled: { opacity: 0.3 },
   label: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: 0.5 },
-  selectedLabel: { color: palette.text },
+  selectedLabel: { color: palette.background },
 });

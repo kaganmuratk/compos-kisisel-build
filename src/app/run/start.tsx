@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SwipeableRow } from '@/components/swipeable-row';
@@ -14,6 +15,8 @@ import { useDeleteRunRoute, useRunRoutes } from '@/db/queries/routes';
 import { ACTIVITY_TYPE_LABELS, isActivityType } from '@/lib/activity-type';
 import { defaultSessionTitle, getTodayDateString } from '@/lib/date';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
+import { KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
 
 export default function StartRunScreen() {
   const { t } = useT();
@@ -42,14 +45,14 @@ export default function StartRunScreen() {
 
   return <ThemedView lightColor={palette.background} darkColor={palette.background} style={styles.container}><SafeAreaView style={styles.safeArea} edges={['top']}>
     <ScreenHeader onBack={() => router.back()} eyebrow={t('activity').toUpperCase()} title={`${t('start').toUpperCase()} ${activityLabel.toUpperCase()}`} accentColor={palette.green} />
-    <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
+    <KeyboardAwareScrollView bottomOffset={KEYBOARD_BAR_CLEARANCE} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
       <View style={styles.fieldCard}><ThemedText style={styles.fieldLabel}>{t('activityName').toUpperCase()}</ThemedText><TextInput value={name} onChangeText={(text) => { setName(text); setNameTouched(true); }} placeholder={t('activityName')} placeholderTextColor={palette.muted} style={styles.titleInput} /></View>
       {activityType === 'run' && <><Pressable onPress={() => setShowRoutes((visible) => !visible)} style={styles.disclosure}><View><ThemedText style={styles.fieldLabel}>{t('route').toUpperCase()}</ThemedText><ThemedText style={styles.disclosureValue}>{selectedRoute ? selectedRoute.name : t('noRouteSelected').toUpperCase()}</ThemedText></View><ThemedText style={styles.disclosureAction}>{showRoutes ? '−' : '+'}</ThemedText></Pressable>
       {showRoutes && <View style={styles.optionPanel}><Pressable onPress={() => router.push('/run/routes/new')} style={styles.newRoute}><ThemedText style={styles.newRouteText}>+ CREATE ROUTE</ThemedText></Pressable>{routes.length === 0 ? <ThemedText style={styles.empty}>NO SAVED ROUTES.</ThemedText> : routes.map((route) => { const selected = route.id === routeId; return <SwipeableRow key={route.id} onDelete={() => { if (selected) setRouteId(null); deleteRoute.mutate(route.id); }} confirmTitle="Delete route" confirmMessage={`"${route.name}" will be permanently removed.`}><Pressable onPress={() => setRouteId(selected ? null : route.id)} style={[styles.routeRow, selected && styles.routeRowSelected]}><ThemedText style={[styles.optionMark, selected && styles.optionMarkSelected]}>{selected ? '✓' : '○'}</ThemedText><View style={styles.routeInfo}><ThemedText style={styles.optionText}>{route.name}</ThemedText><ThemedText style={styles.routeDistance}>{(route.distanceMeters / 1000).toFixed(2)} KM</ThemedText></View></Pressable></SwipeableRow>; })}</View>}</>}
       <Pressable onPress={() => setShowNote((visible) => !visible)} style={styles.disclosure}><View><ThemedText style={styles.fieldLabel}>{t('note').toUpperCase()}</ThemedText><ThemedText style={styles.disclosureValue}>{notes ? t('noteAdded').toUpperCase() : t('optional').toUpperCase()}</ThemedText></View><ThemedText style={styles.disclosureAction}>{showNote ? '−' : '+'}</ThemedText></Pressable>
       {showNote && <TextInput value={notes} onChangeText={setNotes} placeholder={t('activityNotes')} placeholderTextColor={palette.muted} style={styles.noteInput} multiline />}
       <Pressable onPress={() => router.push('/run/manual')} style={styles.manualLink}><ThemedText style={styles.manualLabel}>LOG A PAST ACTIVITY</ThemedText></Pressable>
-    </ScrollView>
+    </KeyboardAwareScrollView>
     <Pressable onPress={start} disabled={startCardioSession.isPending} style={[styles.startButton, startCardioSession.isPending && styles.buttonDisabled]}>{startCardioSession.isPending ? <ActivityIndicator color={palette.background} /> : <ThemedText style={styles.startLabel}>START {activityLabel.toUpperCase()}</ThemedText>}</Pressable>
   </SafeAreaView></ThemedView>;
 }

@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { FoodMacroDetail } from '@/components/food-macro-detail';
 import { NutritionEmpty, NutritionPage, NutritionPrimaryButton, PaletteText as ThemedText, useNutritionPalette, useNutritionUi } from '@/components/nutrition-ui';
@@ -12,6 +12,7 @@ import { getFoodCategoryLabel } from '@/lib/food-category';
 import { getFoodNameLabel } from '@/lib/food-name';
 import { useT } from '@/lib/i18n';
 import { parsePortions } from '@/lib/nutrition';
+import { TextInput } from '@/components/text-input';
 
 export default function AddFoodToPlanScreen() {
   const nutritionUi = useNutritionUi();

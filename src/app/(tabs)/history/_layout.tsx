@@ -12,9 +12,6 @@ export default function HistoryLayout() {
         contentStyle: { backgroundColor: theme.background },
       }}>
       <Stack.Screen name="index" />
-      <Stack.Screen name="day/[date]" />
-      <Stack.Screen name="workout/[sessionId]" />
-      <Stack.Screen name="nutrition/[date]" />
     </Stack>
   );
 }

@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 
 import { useNutritionPalette } from '@/components/nutrition-ui';
+import { modalScreenLayout } from '@/components/keyboard-done-bar';
 
 // Top-level (tab-independent) so these are reachable from both the Beslenme
 // tab and the History tab without a tab-switch side effect: pushing a route
@@ -11,6 +12,7 @@ export default function NutritionLayout() {
   const palette = useNutritionPalette();
   return (
     <Stack
+      screenLayout={modalScreenLayout}
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: palette.background },

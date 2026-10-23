@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, Platform, ScrollView, StyleSheet, View } from 'react-native';
 
 import { FoodMacroDetail } from '@/components/food-macro-detail';
 import { NutritionEmpty, NutritionPage, NutritionTextButton, useNutritionPalette, useNutritionUi } from '@/components/nutrition-ui';
@@ -8,6 +8,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useNutritionLog, useRemoveNutritionLog, useUpdateNutritionLog } from '@/db/queries/nutrition';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
 
 export default function NutritionLogDetailScreen() {
   const { t } = useT();

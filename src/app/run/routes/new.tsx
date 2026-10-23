@@ -1,7 +1,7 @@
 import * as Location from 'expo-location';
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { RouteMap } from '@/components/route-map';
@@ -12,6 +12,7 @@ import { nutritionPaletteLight, PaletteText as ThemedText, useNutritionPalette }
 import { useAddRunRoute } from '@/db/queries/routes';
 import { DirectionsError, fetchWalkingRoute, type LatLng } from '@/lib/directions';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
 
 function WebNotAvailable() {
   const palette = useNutritionPalette();

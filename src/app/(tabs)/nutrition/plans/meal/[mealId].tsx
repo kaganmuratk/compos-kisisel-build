@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { FoodMacroDetail } from '@/components/food-macro-detail';
 import { NutritionEmpty, NutritionPage, PaletteText as ThemedText, TrashIcon, useNutritionPalette, useNutritionUi } from '@/components/nutrition-ui';
@@ -8,6 +8,7 @@ import { Fonts, Spacing } from '@/constants/theme';
 import { usePlanMeal, useRemoveMealFromPlan, useUpdatePlanMeal } from '@/db/queries/nutrition-plans';
 import { getFoodNameLabel } from '@/lib/food-name';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
 
 export default function PlanMealDetailScreen() {
   const nutritionUi = useNutritionUi();

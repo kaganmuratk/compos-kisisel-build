@@ -1,7 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState, type ComponentProps } from 'react';
-import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Alert, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
 
 import { HeaderActionButton } from '@/components/header-action-button';
@@ -33,6 +34,9 @@ import { addMinutesToTime, formatClockTime, formatDayMonth, formatSleepDuration,
 import { formatDuration, formatPace, formatSpeed, formatSwimPace } from '@/lib/geo';
 import { fromKg, toKg } from '@/lib/units';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
+import { BackButton } from '@/components/screen-header';
+import { KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
 
 const STRESS_LEVELS = Array.from({ length: 5 }, (_, i) => i + 1);
 const DAY_NOTE_STANDARD_HEIGHT = 132;
@@ -100,7 +104,6 @@ export default function HistoryDayScreen() {
   const { date } = useLocalSearchParams<{ date: string }>();
   const theme = { text: palette.text, background: palette.background, backgroundElement: palette.card, backgroundSelected: palette.raised, textSecondary: palette.muted, border: palette.border, accent: palette.blue, accentOn: palette.background, destructive: palette.red };
   const cardShadow = cardShadowFor(palette);
-  const insets = useSafeAreaInsets();
   const day = useHistoryDay(date);
   const { data: steps } = useDailySteps(date);
   const { data: healthSleep } = useHealthConnectSleep(date);
@@ -189,8 +192,9 @@ export default function HistoryDayScreen() {
     await deleteDay.mutateAsync(day.date);
     // router.back() here has landed on the Bugün tab instead of the
     // history calendar (same class of bug as the workout-finish flow
-    // in workout/[sessionId].tsx) — replace with an explicit target.
-    router.replace('/history');
+    // in workout/[sessionId].tsx) — go to an explicit target. dismissTo, not
+    // replace: replace stacked a second (tabs) on the root stack.
+    router.dismissTo('/history');
   };
 
   const confirmDelete = () => {
@@ -329,9 +333,7 @@ export default function HistoryDayScreen() {
               History calendar, or (via a chart tooltip tap, see
               chart-pointer.tsx) whichever Analysis screen was tapped —
               instead of getting tangled in a different tab's own stack. */}
-          <Pressable accessibilityLabel={t('back')} onPress={() => router.back()} hitSlop={10}>
-            <Ionicons name="chevron-back" size={22} color={theme.text} />
-          </Pressable>
+          <BackButton onPress={() => (router.canGoBack() ? router.back() : router.replace('/history'))} />
           <View style={styles.topRowTitle}>
             {editingName ? (
               <TextInput
@@ -346,7 +348,7 @@ export default function HistoryDayScreen() {
               />
             ) : (
               <Pressable onPress={() => setEditingName(true)} hitSlop={4}>
-                <ThemedText type="title" numberOfLines={1}>{title}</ThemedText>
+                <ThemedText type="title" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{title}</ThemedText>
               </Pressable>
             )}
           </View>
@@ -372,13 +374,12 @@ export default function HistoryDayScreen() {
           <SnapshotMetric value={day.nutrition ? String(Math.round(day.nutrition.totalCalories)) : '—'} label={t('kcal').toUpperCase()} tone="yellow" />
         </View>
 
-        <KeyboardAvoidingView
-          style={styles.keyboardAvoiding}
-          // See src/app/workout/[sessionId].tsx — Android already resizes via
-          // windowSoftInputMode="adjustResize"; behavior="height" here just
-          // double-compensated and left inputs behind the keyboard.
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={insets.top}>
+        {/* KeyboardAwareScrollView below keeps the focused input — including
+            a multiline note as it grows line by line — above the keyboard on
+            both platforms; it replaces the KeyboardAvoidingView that used to
+            wrap this, which on iOS let long notes slide under the keyboard
+            (2026-10-23). */}
+        <View style={styles.keyboardAvoiding}>
         <TextInput
           value={note}
           onChangeText={setNote}
@@ -391,7 +392,7 @@ export default function HistoryDayScreen() {
           multiline
         />
 
-        <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <KeyboardAwareScrollView bottomOffset={KEYBOARD_BAR_CLEARANCE} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={[styles.groupCard, styles.workoutCard, cardShadow]}>
             <View style={styles.groupHeader}>
               <Ionicons name="barbell-outline" size={18} color={theme.textSecondary} />
@@ -871,8 +872,8 @@ export default function HistoryDayScreen() {
               </View>
             )}
           </View>
-        </ScrollView>
-        </KeyboardAvoidingView>
+        </KeyboardAwareScrollView>
+        </View>
 
         <Modal
           transparent

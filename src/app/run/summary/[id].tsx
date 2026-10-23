@@ -1,7 +1,8 @@
 import { Image, useImage } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, useWindowDimensions, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { HeaderActionButton } from '@/components/header-action-button';
@@ -21,6 +22,9 @@ import { formatShortDate } from '@/lib/date';
 import type { LatLng } from '@/lib/directions';
 import { formatDuration, formatPace, formatSpeed, formatSwimPace, type RoutePoint } from '@/lib/geo';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
+import { BackButton } from '@/components/screen-header';
+import { KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
 
 export default function RunSummaryScreen() {
   const { t, language } = useT();
@@ -135,9 +139,7 @@ export default function RunSummaryScreen() {
     <ThemedView lightColor={palette.background} darkColor={palette.background} style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
-          <Pressable accessibilityLabel={t('back')} onPress={() => router.back()} hitSlop={10} style={styles.backButton}>
-            <ThemedText style={styles.symbol}>&lt;</ThemedText>
-          </Pressable>
+          <BackButton onPress={() => router.back()} />
           {editingName ? (
             <TextInput
               value={nameValue}
@@ -161,7 +163,7 @@ export default function RunSummaryScreen() {
           />
         </View>
 
-        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <KeyboardAwareScrollView bottomOffset={KEYBOARD_BAR_CLEARANCE} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Pressable onPress={() => setShowNote((s) => !s)} style={styles.noteToggle} hitSlop={8}>
           <ThemedText type="small" themeColor="textSecondary">
             {note || `${t('addNoteLabel').toUpperCase()} ${showNote ? '−' : '+'}`}
@@ -472,7 +474,7 @@ export default function RunSummaryScreen() {
             )}
           </>
         )}
-        </ScrollView>
+        </KeyboardAwareScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -546,13 +548,6 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  backButton: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  symbol: { color: palette.text, fontFamily: Fonts.technical, fontSize: 19, lineHeight: 22 },
   titleInput: {
     fontSize: 22,
     fontFamily: Fonts.semiBold,

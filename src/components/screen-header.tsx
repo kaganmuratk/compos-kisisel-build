@@ -35,27 +35,35 @@ export function ScreenHeader({
   onBack?: () => void;
   trailing?: ReactNode;
 }) {
-  const { t } = useT();
   const palette = useNutritionPalette();
   const styles = useMemo(() => createStyles(palette), [palette]);
   return (
     <View style={styles.heading}>
-      <Pressable
-        accessibilityLabel={t('back')}
-        onPress={onBack ?? (() => router.push(backHref as never))}
-        hitSlop={12}
-        style={styles.back}>
-        <ThemedText style={[styles.backSymbol, { color: accentColor }]}>‹</ThemedText>
-      </Pressable>
+      <BackButton color={accentColor} onPress={onBack ?? (() => router.dismissTo(backHref as never))} />
       <View style={styles.headingCopy}>
         <ThemedText style={[styles.eyebrow, { color: accentColor }]}>{eyebrow}</ThemedText>
-        <ThemedText style={styles.title} numberOfLines={1}>
+        <ThemedText style={styles.title} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
           {title}
         </ThemedText>
         {subtitle ? <ThemedText style={styles.subtitle}>{subtitle}</ThemedText> : null}
       </View>
       {trailing}
     </View>
+  );
+}
+
+// The app's one back button — every screen's ‹ comes from here, so it's the
+// same glyph, size, color and touch area everywhere (2026-10-20: the day
+// view's back arrow was visibly bigger than other screens'). The glyph is an
+// icon, not text, so it doesn't follow the OS text size either.
+export function BackButton({ onPress, color }: { onPress: () => void; color?: string }) {
+  const { t } = useT();
+  const palette = useNutritionPalette();
+  const styles = useMemo(() => createStyles(palette), [palette]);
+  return (
+    <Pressable accessibilityLabel={t('back')} onPress={onPress} hitSlop={12} style={styles.back}>
+      <ThemedText allowFontScaling={false} style={[styles.backSymbol, { color: color ?? palette.blue }]}>‹</ThemedText>
+    </Pressable>
   );
 }
 

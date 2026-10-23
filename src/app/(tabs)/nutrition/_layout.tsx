@@ -1,11 +1,13 @@
 import { Stack } from 'expo-router';
 
 import { useNutritionPalette } from '@/components/nutrition-ui';
+import { modalScreenLayout } from '@/components/keyboard-done-bar';
 
 export default function NutritionLayout() {
   const palette = useNutritionPalette();
   return (
     <Stack
+      screenLayout={modalScreenLayout}
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: palette.background },

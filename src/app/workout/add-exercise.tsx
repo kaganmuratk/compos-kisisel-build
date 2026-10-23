@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Pressable, SectionList, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, SectionList, StyleSheet, View } from 'react-native';
 import { useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -14,6 +14,7 @@ import { exerciseCategories } from '@/db/seed-data';
 import { alertMessage } from '@/lib/alert';
 import { exerciseCategoryLabels } from '@/lib/exercise-category';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
 
 export default function AddExerciseScreen() {
   const { t } = useT();

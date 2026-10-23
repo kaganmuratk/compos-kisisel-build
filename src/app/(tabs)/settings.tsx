@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import * as Updates from 'expo-updates';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Appearance, Linking, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Appearance, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { desc, isNotNull } from 'drizzle-orm';
 
@@ -22,6 +22,7 @@ import { createHistoryCsv, writeHistoryCsv } from '@/lib/export-csv';
 import { openHealthConnectSettings, queryRawSampleCounts } from '@/lib/health-connect';
 import { shareOrDownloadImage } from '@/lib/share-image';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
@@ -107,7 +108,7 @@ export default function SettingsScreen() {
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.pageHeading}>
           <ThemedText style={styles.subtitle}>{t('yourDefaults').toUpperCase()}</ThemedText>
-          <ThemedText style={styles.title}>{t('settings').toUpperCase()}</ThemedText>
+          <ThemedText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={styles.title}>{t('settings').toUpperCase()}</ThemedText>
         </View>
         <SyncWarningBanner />
         <SyncStatusCard cardStyle={cardStyle} />

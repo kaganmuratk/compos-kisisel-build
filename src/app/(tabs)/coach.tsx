@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, AppState, FlatList, Image, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, AppState, FlatList, Image, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
 
@@ -11,6 +11,7 @@ import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { findTodaySessionForDay, useStartCoachSession } from '@/db/queries/coach-workout';
 import { markCoachSeen, setupCoachNotifications } from '@/lib/coach-notifications';
 import { CoachConfig, CoachMessage, CoachTodaySession, OutboxItem, coachFetch, coachImageSource, flushOutbox, loadCoachConfig, loadOutbox, queueOutgoing, saveCoachConfig } from '@/lib/coach-client';
+import { TextInput } from '@/components/text-input';
 
 type Palette = ReturnType<typeof useNutritionPalette>;
 
@@ -158,17 +159,18 @@ export default function CoachScreen() {
       <SafeAreaView style={styles.safe} edges={['top']}>
         <View style={styles.brandRow}>
           <ThemedText style={styles.brand}>COMPOS</ThemedText>
-          <ThemedText style={styles.area}>KOÇ</ThemedText>
+          <ThemedText style={styles.area}>KİŞİSEL KOÇ</ThemedText>
         </View>
+        {/* Same heading as the other tab roots (blue eyebrow + large title)
+            instead of the old chat-app avatar row, which looked like a
+            different app (2026-10-19). The eyebrow carries the connection
+            status the avatar row used to show. */}
         <View style={styles.header}>
-          <View style={styles.avatar}>
-            <ThemedText style={styles.avatarText}>K</ThemedText>
-          </View>
           <View style={styles.headerCopy}>
-            <ThemedText style={styles.name}>Koç</ThemedText>
             <ThemedText style={[styles.status, error ? { color: palette.red } : null]}>
               {error ? 'BAĞLANTI SORUNU' : config ? 'AI KOÇ' : 'KURULUM GEREKLİ'}
             </ThemedText>
+            <ThemedText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={styles.name}>KOÇ</ThemedText>
           </View>
           <View style={styles.headerActions}>
             <Pressable onPress={() => router.push('/coach-week' as never)} accessibilityLabel="Haftalık plan" style={({ pressed }) => [styles.iconButton, pressed && styles.pressed]}>
@@ -467,11 +469,10 @@ const createStyles = (palette: Palette) =>
     brandRow: { height: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: palette.border },
     brand: { color: palette.text, fontFamily: Fonts.metric, fontSize: 18, letterSpacing: 2 },
     area: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 8, letterSpacing: 1.2 },
-    header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingVertical: Spacing.two, borderBottomWidth: 1, borderColor: palette.border },
-    avatar: { width: 40, height: 40, borderRadius: Radius.full, alignItems: 'center', justifyContent: 'center', backgroundColor: withAlpha(palette.blue, 0.18) },
-    avatarText: { color: palette.blue, fontFamily: Fonts.metric, fontSize: 20, lineHeight: 24 },
+    // Matches the other tab roots' pageHeading/eyebrow/title.
+    header: { flexDirection: 'row', alignItems: 'flex-end', gap: Spacing.two, paddingVertical: Spacing.three, borderBottomWidth: 1, borderColor: palette.border },
     headerCopy: { flex: 1 },
-    name: { color: palette.text, fontFamily: Fonts.metricMedium, fontSize: 22, lineHeight: 25 },
+    name: { color: palette.text, fontFamily: Fonts.metric, fontSize: 38, lineHeight: 42 },
     status: { color: palette.blue, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: 1 },
     headerActions: { flexDirection: 'row', gap: Spacing.one },
     // hitSlop YOK: yan yana 44'lük butonlarda hitSlop dokunma alanlarını üst üste bindirip yanlış sayfayı açıyordu.

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState, type CSSProperties } from 'react';
-import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedView } from '@/components/themed-view';
@@ -11,6 +11,7 @@ import { useAddExercise, useExercises, useTransferExerciseHistory } from '@/db/q
 import { exerciseCategories } from '@/db/seed-data';
 import { exerciseCategoryLabels } from '@/lib/exercise-category';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
 
 
 export default function NewExerciseScreen() {const palette=useNutritionPalette();const styles=useMemo(()=>createStyles(palette),[palette]);

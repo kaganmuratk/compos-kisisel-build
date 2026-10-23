@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { nutritionPaletteLight, PaletteText as ThemedText, useNutritionPalette } from '@/components/nutrition-ui';
@@ -12,6 +12,7 @@ import { db } from '@/db/client';
 import { supplementCategories } from '@/db/schema';
 import { useAddSupplement, useAddSupplementLog } from '@/db/queries/supplements';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
 
 // Mirrors Today's/History's categoryAccentPalette exactly — same 4 tones in
 // the same order, so a category already reads as "its" color here too, not

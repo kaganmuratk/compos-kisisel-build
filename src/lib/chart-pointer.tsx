@@ -4,7 +4,8 @@ import { router } from 'expo-router';
 
 import { ThemedText } from '@/components/themed-text';
 import { useNutritionPalette } from '@/components/nutrition-ui';
-import { Radius, Spacing } from '@/constants/theme';
+import { Fonts, Radius, Spacing } from '@/constants/theme';
+import { useFontScale } from '@/hooks/use-font-scale';
 
 // Shared tap/press tooltip for every LineChart in the app (react-native-
 // gifted-charts' own `pointerConfig`) — Kağan asked for this on "tüm
@@ -43,9 +44,16 @@ export function useChartPointerConfig({
   // why it stayed dark-styled even after the rest of the app switched to
   // the light theme.
   const palette = useNutritionPalette();
-  const styles = useMemo(() => createStyles(palette), [palette]);
   const resolvedPointerColor = pointerColor ?? palette.blue;
-  const pointerLabelWidth = seriesLabels ? 108 : 70;
+  // The bubble's box is a fixed size gifted-charts positions by, so its text
+  // is sized here (allowFontScaling off) and the box grows with it: at a
+  // larger OS text size the text used to spill out of the box over the chart
+  // and the controls below (2026-10-23). It follows the text-size setting
+  // only up to 1.2× — it's a transient overlay on a 140px-tall chart, and
+  // any bigger it covers most of the chart it's describing.
+  const tooltipScale = Math.min(useFontScale(), 1.2);
+  const styles = useMemo(() => createStyles(palette, tooltipScale), [palette, tooltipScale]);
+  const pointerLabelWidth = (seriesLabels ? 132 : 76) * tooltipScale;
   return {
     showPointerStrip: false,
     pointerColor: resolvedPointerColor,
@@ -78,15 +86,14 @@ export function useChartPointerConfig({
     // card edge). The old 132/110 was wider than the box needed to be, so
     // near edge points it shifted much further than necessary, visually
     // detaching the box from the pointer dot (which is always correctly
-    // placed). Narrowing it only works together with stacking label above
-    // value below (see valueRow) — a row layout at this width would wrap.
-    // Kağan tried the two series side by side and asked to go back to
-    // stacked (GERÇEK row above HEDEF row) — don't re-widen this for that.
-    // 84 was too narrow though: "2800 kcal" (value+unit on one line) wrapped
-    // to two lines at that width — 108 is the smallest width that keeps a
-    // 4-digit value + unit on one line at the smallBold 14px font.
+    // placed). Kağan tried the two series side by side and asked to go back
+    // to stacked (GERÇEK row above HEDEF row) — don't re-widen this for that.
+    // Each row now carries its label inline ("GERÇEK  2800 kcal") instead of
+    // above the value, which roughly halves the box's height (the old
+    // label-over-value stack made it tall enough to cover the chart and the
+    // controls under it); 132 fits that row with a 4-digit value + unit.
     pointerLabelWidth,
-    pointerLabelHeight: seriesLabels ? 92 : 56,
+    pointerLabelHeight: (seriesLabels ? 62 : 42) * tooltipScale,
     // gifted-charts defaults the whole pointer/label overlay to
     // `pointerEvents: 'none'` so tapping a DIFFERENT column while a tooltip
     // is showing still reaches the chart underneath and moves the pointer.
@@ -115,13 +122,13 @@ export function useChartPointerConfig({
       // specific day, so those tooltips stay a plain (non-pressable) card.
       const dateKey = item.dateKey && /^\d{4}-\d{2}-\d{2}$/.test(item.dateKey) ? item.dateKey : undefined;
       const valueRows = items.map((value, index) => (
-        <View key={index} style={[styles.valueRow, !seriesLabels?.[index] && styles.valueRowCentered]}>
-          {seriesLabels?.[index] ? <ThemedText style={[styles.seriesLabel, { color: seriesColors?.[index] ?? resolvedPointerColor }]}>{seriesLabels[index]}</ThemedText> : null}
-          <ThemedText type="smallBold" style={styles.valueText}>{value.value.toFixed(roundToDigits)}{unit ? ` ${unit}` : ''}</ThemedText>
+        <View key={index} style={styles.valueRow}>
+          {seriesLabels?.[index] ? <ThemedText allowFontScaling={false} style={[styles.seriesLabel, { color: seriesColors?.[index] ?? resolvedPointerColor }]}>{seriesLabels[index]}</ThemedText> : null}
+          <ThemedText allowFontScaling={false} style={styles.valueText}>{value.value.toFixed(roundToDigits)}{unit ? ` ${unit}` : ''}</ThemedText>
         </View>
       ));
       const dateText = !!label && (
-        <ThemedText type="small" style={[styles.dateText, !seriesLabels && styles.dateTextCentered]}>
+        <ThemedText allowFontScaling={false} style={styles.dateText}>
           {label}
         </ThemedText>
       );
@@ -151,6 +158,7 @@ export function useChartPointerConfig({
               native (RN's real touch dispatch doesn't use CSS stacking
               contexts) — if day-navigation taps turn out to be flaky on a
               real device too, look here first. */}
+          {dateText}
           {dateKey ? (
             <Pressable onPress={() => router.push({ pathname: '/history/day/[date]', params: { date: dateKey } })}>
               {valueRows}
@@ -158,32 +166,29 @@ export function useChartPointerConfig({
           ) : (
             valueRows
           )}
-          {dateText}
         </View>
       );
     },
   };
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+// `ts`: the tooltip's own text scale (see tooltipScale above).
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>, ts: number) => StyleSheet.create({
   bubble: {
     borderRadius: Radius.md,
     borderWidth: StyleSheet.hairlineWidth,
     paddingHorizontal: Spacing.two,
     paddingVertical: Spacing.one,
+    gap: 1,
     alignItems: 'stretch',
     backgroundColor: palette.raised,
     borderColor: palette.border,
   },
-  // Label stacked above value (not side by side) so each line is short
-  // enough for the box to stay narrow — see pointerLabelWidth above.
-  valueRow: { alignItems: 'flex-start', gap: 1 },
-  valueRowCentered: { alignItems: 'center' },
-  seriesLabel: { fontSize: 8, fontWeight: '700', letterSpacing: 0.5 },
-  valueText: { color: palette.text },
-  // Left-aligned to sit flush under the GERÇEK/HEDEF labels (valueRow is
-  // flex-start there) — only the single-series case (valueRowCentered)
-  // centers the value, so only that case centers the date underneath it too.
-  dateText: { color: palette.muted, textAlign: 'left' },
-  dateTextCentered: { textAlign: 'center' },
+  // One line per series: label left, value right; series rows stacked
+  // (GERÇEK above HEDEF). A single-series tooltip has no label — the value
+  // sits alone, centered.
+  valueRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: Spacing.two },
+  seriesLabel: { fontSize: 8 * ts, lineHeight: 12 * ts, fontWeight: '700', letterSpacing: 0.5 },
+  valueText: { flexGrow: 1, textAlign: 'right', color: palette.text, fontFamily: Fonts.bold, fontSize: 13 * ts, lineHeight: 18 * ts },
+  dateText: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 10 * ts, lineHeight: 14 * ts, letterSpacing: 0.3 },
 });

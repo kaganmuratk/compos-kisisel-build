@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SessionMediaRow } from '@/components/session-media-row';
@@ -25,7 +26,11 @@ import {
 } from '@/db/queries/workout';
 import { formatClockTime, formatShortDate } from '@/lib/date';
 import { formatDuration } from '@/lib/geo';
+import { useFontScale } from '@/hooks/use-font-scale';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
+import { KeyboardDoneBar, KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
+import { BackButton } from '@/components/screen-header';
 
 // The DETAILS sheet's section labels (HEALTH/FOOD/NOTE/MEDIA) each get one
 // fixed color regardless of theme — same hues History's day view uses for
@@ -43,7 +48,8 @@ export default function WorkoutRecapScreen() {
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const id = sessionId;
   const palette = useNutritionPalette();
-  const styles = useMemo(() => createStyles(palette), [palette]);
+  const fontScale = useFontScale();
+  const styles = useMemo(() => createStyles(palette, fontScale), [palette, fontScale]);
   const theme = { text: palette.text, background: palette.background, backgroundElement: palette.card, backgroundSelected: palette.raised, textSecondary: palette.muted, border: palette.border, accent: palette.blue, accentOn: palette.background, destructive: palette.red };
   const insets = useSafeAreaInsets();
 
@@ -90,19 +96,16 @@ export default function WorkoutRecapScreen() {
     <ThemedView lightColor={palette.background} darkColor={palette.background} style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.topRow}>
-          <Pressable
-            accessibilityLabel="Back"
-            // Deterministic instead of router.back(): this screen is reached
-            // from several places (History day view, Bugün's quick-start,
-            // the live workout's finish-flow replace()) and back()'s target
-            // depends on which one, which read as "back sometimes dumps me on
-            // Bugün" — always landing on this workout's own day is correct
-            // regardless of entry point and matches the day/[date].tsx fix.
-            onPress={() => router.replace({ pathname: '/history/day/[date]', params: { date: session.date } })}
-            hitSlop={10}
-            style={styles.backButton}>
-            <ThemedText style={styles.navSymbol}>{'<'}</ThemedText>
-          </Pressable>
+          {/* Deterministic instead of router.back(): this screen is reached
+            from several places (History day view, Bugün's quick-start,
+            the live workout's finish-flow replace()) and back()'s target
+            depends on which one, which read as "back sometimes dumps me on
+            Bugün" — always landing on this workout's own day is correct
+            regardless of entry point and matches the day/[date].tsx fix.
+            dismissTo, not replace: when the day is already below us
+            (History → day → workout) it pops back to it; replace stacked a
+            second copy of the day, so Android back reopened it (2026-10-23). */}
+          <BackButton onPress={() => router.dismissTo({ pathname: '/history/day/[date]', params: { date: session.date } })} />
           <View style={styles.headerActions}>
             <HeaderActionButton
               label={t('share')}
@@ -129,7 +132,7 @@ export default function WorkoutRecapScreen() {
                 />
               ) : (
                 <Pressable onPress={() => setEditingName(true)} hitSlop={4}>
-                  <ThemedText style={styles.sessionTitle}>{session.name || formatShortDate(session.date)}</ThemedText>
+                  <ThemedText numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.6} style={styles.sessionTitle}>{session.name || formatShortDate(session.date)}</ThemedText>
                 </Pressable>
               )}
               <View style={styles.sessionMetaRow}>
@@ -143,14 +146,14 @@ export default function WorkoutRecapScreen() {
           </View>
         </View>
 
-        <KeyboardAvoidingView
-          style={styles.keyboardAvoiding}
-          // See src/app/workout/[sessionId].tsx — Android already resizes via
-          // windowSoftInputMode="adjustResize"; behavior="height" here just
-          // double-compensated and left inputs behind the keyboard.
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={insets.top}>
-        <ScrollView
+        {/* KeyboardAwareScrollView below keeps the focused input — including
+            a multiline note as it grows line by line — above the keyboard on
+            both platforms; it replaces the KeyboardAvoidingView that used to
+            wrap this, which on iOS let long notes slide under the keyboard
+            (2026-10-23). */}
+        <View style={styles.keyboardAvoiding}>
+        <KeyboardAwareScrollView
+          bottomOffset={KEYBOARD_BAR_CLEARANCE}
           style={styles.scrollView}
           contentContainerStyle={[styles.content, { paddingBottom: Spacing.six + insets.bottom }]}
           showsVerticalScrollIndicator={false}>
@@ -170,8 +173,8 @@ export default function WorkoutRecapScreen() {
               {t('addExercise').toUpperCase()}
             </ThemedText>
           </Pressable>
-        </ScrollView>
-        </KeyboardAvoidingView>
+        </KeyboardAwareScrollView>
+        </View>
 
         <Modal transparent animationType="fade" visible={showWorkoutDetails} onRequestClose={() => setShowWorkoutDetails(false)}>
           <Pressable style={styles.workoutDetailsBackdrop} onPress={() => setShowWorkoutDetails(false)}>
@@ -225,6 +228,7 @@ export default function WorkoutRecapScreen() {
             </Pressable>
             </KeyboardAvoidingView>
           </Pressable>
+          <KeyboardDoneBar placement="modal" />
         </Modal>
       </SafeAreaView>
     </ThemedView>
@@ -233,7 +237,8 @@ export default function WorkoutRecapScreen() {
 
 function DetailStat({ value, label }: { value: string | number; label: string }) {
   const palette = useNutritionPalette();
-  const styles = useMemo(() => createStyles(palette), [palette]);
+  const fontScale = useFontScale();
+  const styles = useMemo(() => createStyles(palette, fontScale), [palette, fontScale]);
   return (
     <View style={styles.healthStatBlock}>
       <ThemedText style={styles.healthStatValue}>{value}</ThemedText>
@@ -255,7 +260,8 @@ function ExerciseCard({
   repMetric: 'rir' | 'rpe';
 }) {
   const palette = useNutritionPalette();
-  const styles = useMemo(() => createStyles(palette), [palette]);
+  const fontScale = useFontScale();
+  const styles = useMemo(() => createStyles(palette, fontScale), [palette, fontScale]);
   const theme = { text: palette.text, textSecondary: palette.muted, border: palette.border, backgroundElement: palette.card };
   const addSet = useAddSet(sessionId);
   const updateSet = useUpdateSet(sessionId);
@@ -308,6 +314,7 @@ function ExerciseCard({
               </View>
             </KeyboardAvoidingView>
           </Pressable>
+          <KeyboardDoneBar placement="modal" />
         </Modal>
 
         {log.sets.length > 0 && (
@@ -320,7 +327,11 @@ function ExerciseCard({
 
         {unilateralPairs.map((pair) => (
           <View key={pair.setNumber} style={styles.unilateralPair}>
-            <ThemedText type="small" themeColor="textSecondary" style={styles.setNumberColumn}>
+            {/* Slim header above full-width L/R rows, same as the live
+                workout screen — a left-hand number column squeezed both
+                sides' rows narrower and, at larger text sizes, made the
+                reps box overlap the RIR label (2026-10-20). */}
+            <ThemedText type="small" themeColor="textSecondary" style={[styles.setNumberColumn, styles.unilateralPairHeader]}>
               {pair.setNumber}
             </ThemedText>
             <View style={styles.unilateralSides}>
@@ -384,7 +395,9 @@ function ExerciseCard({
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+// fs: capped OS text-size factor (useFontScale) — the table's fixed column
+// widths hold text, so they grow with it.
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>, fs: number) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: palette.background,
@@ -403,12 +416,6 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: palette.border,
   },
-  navSymbol: { color: palette.text, fontFamily: Fonts.technical, fontSize: 22, lineHeight: 24 },
-  // No alignSelf override — topRow's own alignItems:'center' already
-  // vertically centers this against the PAYLAŞ/ANTRENMANLAR buttons; the
-  // old flex-start pinned it to the row's top instead, off-center against
-  // the taller header action buttons next to it.
-  backButton: {},
   headerActions: { flexDirection: 'row', gap: Spacing.two },
   keyboardAvoiding: {
     flex: 1,
@@ -454,9 +461,11 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
     borderColor: palette.border,
     backgroundColor: palette.card,
   },
-  workoutDetailsToggle: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.three, borderWidth: 1, borderColor: palette.border, borderRadius: Radius.md, backgroundColor: palette.card },
+  workoutDetailsToggle: { minHeight: 52, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Spacing.two, paddingVertical: Spacing.two, paddingHorizontal: Spacing.three, borderWidth: 1, borderColor: palette.border, borderRadius: Radius.md, backgroundColor: palette.card },
   workoutDetailsLabel: { color: palette.text, fontFamily: Fonts.technical, fontSize: 12, letterSpacing: 0.5 },
-  workoutDetailsValue: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: 0.2 },
+  // flexShrink: wraps onto a second line instead of running past the card on
+  // a narrow phone / large text size.
+  workoutDetailsValue: { flexShrink: 1, textAlign: 'right', color: palette.muted, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: 0.2 },
   // Everything DETAILS reveals lands in this one panel, right below the
   // toggle — no more health stats rendered above the list while food/note/
   // media render below it in a separate spot.
@@ -538,7 +547,8 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
   detailAction: { minHeight: 48, justifyContent: 'center', paddingHorizontal: Spacing.three, borderWidth: 1, borderColor: palette.blue },
   detailActionText: { color: palette.blue, fontFamily: Fonts.technical, fontSize: 11, letterSpacing: 0.5 },
   detailLabel: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: 0.45 },
-  detailNoteInput: { minHeight: 96, borderWidth: StyleSheet.hairlineWidth, padding: Spacing.two, fontSize: 15, textAlignVertical: 'top' },
+  // maxHeight: long notes scroll inside the box (see set-row.tsx modalNoteInput).
+  detailNoteInput: { minHeight: 96, maxHeight: 180, borderWidth: StyleSheet.hairlineWidth, padding: Spacing.two, fontSize: 15, textAlignVertical: 'top' },
   detailDone: { minHeight: 42, alignItems: 'center', justifyContent: 'center', borderTopWidth: StyleSheet.hairlineWidth, borderColor: palette.border },
   detailDoneText: { color: palette.blue, fontFamily: Fonts.technical, fontSize: 11, letterSpacing: 0.7 },
   actionCode: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: 0.4 },
@@ -555,21 +565,22 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
   },
   tableLabel: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 12, letterSpacing: 0.35 },
   unilateralPair: {
-    flexDirection: 'row',
-    gap: Spacing.two,
+    gap: 0,
+  },
+  unilateralPairHeader: {
+    paddingTop: Spacing.one,
   },
   unilateralSides: {
-    flex: 1,
-    gap: Spacing.one,
+    gap: 0,
   },
   setNumberColumn: {
-    width: 32,
+    width: 32 * fs,
   },
   setInputColumn: {
     flex: 1,
   },
   metricsHeader: { flex: 1 },
-  effortHeader: { width: 64, textAlign: 'right' },
+  effortHeader: { width: 64 * fs, textAlign: 'right' },
   addSetButton: {
     alignSelf: 'stretch',
     alignItems: 'center',

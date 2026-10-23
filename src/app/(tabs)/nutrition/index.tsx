@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,6 +22,8 @@ import { useSettings } from '@/db/queries/settings';
 import { macrosFor, summarizeNutritionLogs } from '@/lib/nutrition';
 import { useT } from '@/lib/i18n';
 import { getTodayDateString } from '@/lib/date';
+import { TextInput } from '@/components/text-input';
+import { BackButton } from '@/components/screen-header';
 
 type NutritionLogRow = NonNullable<ReturnType<typeof useNutritionLogsForDate>['data']>[number];
 
@@ -143,7 +145,7 @@ export default function NutritionScreen({ date, onBack }: { date?: string; onBac
   const saltDetail = detailParts.find((part) => part.key === 'salt')?.text;
   const primaryDetails = detailParts.filter((part) => part.key !== 'salt').map((part) => part.text).join(' · ');
   const calorieProgress = boundedProgress(totals.kcal, calorieGoal);
-  const todayLabel = new Intl.DateTimeFormat(language === 'tr' ? 'tr-TR' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(new Date()).toUpperCase();
+  const todayLabel = new Intl.DateTimeFormat(language === 'tr' ? 'tr-TR' : 'en-US', { weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(`${selectedDate}T00:00:00`)).toUpperCase();
   const logsByMeal = categories.map((category) => ({ category, items: logs.filter((log) => log.mealType === category.id) }));
 
   const saveNewCategory = () => {
@@ -164,10 +166,10 @@ export default function NutritionScreen({ date, onBack }: { date?: string; onBac
         )}
         <ScrollView ref={scrollRef} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.pageHeading}>
-            {onBack ? <Pressable accessibilityLabel={t('back')} onPress={onBack} hitSlop={10} style={styles.backButton}><ThemedText style={styles.backSymbol}>‹</ThemedText></Pressable> : null}
+            {onBack ? <BackButton onPress={onBack} /> : null}
             <View style={styles.pageHeadingCopy}>
               <ThemedText style={styles.eyebrow}>{todayLabel.toUpperCase()}</ThemedText>
-              <ThemedText style={styles.title}>{t('nutrition').toUpperCase()}</ThemedText>
+              <ThemedText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={styles.title}>{t('nutrition').toUpperCase()}</ThemedText>
             </View>
             <View style={styles.headerActions}>
               <HeaderActionButton
@@ -369,8 +371,6 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => {
   return StyleSheet.create({
   container: { flex: 1, backgroundColor: palette.background },
   safeArea: { flex: 1, paddingHorizontal: Spacing.three },
-  backButton: { width: 28, height: 44, justifyContent: 'center' },
-  backSymbol: { color: palette.blue, fontFamily: Fonts.technical, fontSize: 22 },
   content: { paddingBottom: Spacing.six, gap: Spacing.three },
   brandRow: { height: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: palette.border },
   brand: { color: palette.text, fontFamily: Fonts.metric, fontSize: 18, letterSpacing: 2 },

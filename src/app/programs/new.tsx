@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaletteText as ThemedText, useNutritionPalette } from '@/components/nutrition-ui';
 import { ScreenHeader } from '@/components/screen-header';
@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useAddProgram } from '@/db/queries/programs';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
 
 export default function NewProgramScreen() {
   const { t } = useT();

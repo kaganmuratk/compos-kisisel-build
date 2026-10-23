@@ -59,7 +59,7 @@ export default function AnalysisScreen() {
           </View>
           <View style={styles.pageHeading}>
             <ThemedText style={styles.eyebrow}>{t('yourProgress').toUpperCase()}</ThemedText>
-            <ThemedText style={styles.title}>{t('insights').toUpperCase()}</ThemedText>
+            <ThemedText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={styles.title}>{t('insights').toUpperCase()}</ThemedText>
           </View>
           <View style={styles.grid}>
             {sections.map((section) => (
@@ -73,7 +73,7 @@ export default function AnalysisScreen() {
                   <InsightIcon name={section.icon} color={palette[section.tone]} />
                 </View>
                 <View style={styles.tileCopy}>
-                  <ThemedText style={styles.tileTitle}>{section.label}</ThemedText>
+                  <ThemedText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7} style={styles.tileTitle}>{section.label}</ThemedText>
                   <ThemedText style={styles.tileDescription}>{section.description}</ThemedText>
                 </View>
               </Pressable>
@@ -110,7 +110,10 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
   eyebrow: { color: palette.blue, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: 1 },
   title: { color: palette.text, fontFamily: Fonts.metric, fontSize: 38, lineHeight: 42 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two },
-  tile: { width: '48%', minHeight: 160, justifyContent: 'space-between', padding: Spacing.three, backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border },
+  // Top-aligned (not space-between): with space-between a tile whose
+  // description wraps to more lines pushed its title down, so titles in the
+  // same row sat at different heights at larger text sizes.
+  tile: { width: '48%', minHeight: 160, justifyContent: 'flex-start', gap: Spacing.three, padding: Spacing.three, backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border },
   iconBox: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   tileCopy: { gap: Spacing.one },
   tileTitle: { color: palette.text, fontFamily: Fonts.metricMedium, fontSize: 21, lineHeight: 24 },
@@ -121,9 +124,9 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
   progressTitle: { color: palette.text, fontFamily: Fonts.technical, fontSize: 10, letterSpacing: 1 },
   periodToggle: { flexDirection: 'row', borderWidth: StyleSheet.hairlineWidth, borderColor: palette.border, borderRadius: Radius.sm, overflow: 'hidden' },
   periodChip: { paddingHorizontal: Spacing.two, paddingVertical: Spacing.one, minHeight: 28, justifyContent: 'center' },
-  periodChipSelected: { backgroundColor: palette.raised },
+  periodChipSelected: { backgroundColor: palette.blue },
   periodChipText: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 8, letterSpacing: 0.5 },
-  periodChipTextSelected: { color: palette.text },
+  periodChipTextSelected: { color: palette.background },
   progressRow: { gap: Spacing.one },
   progressCopy: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
   progressLabel: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 10, letterSpacing: 0.7 },

@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, TextInput, View } from 'react-native';
+import { Alert, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
 import DraggableFlatList, { type RenderItemParams } from 'react-native-draggable-flatlist';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -28,7 +28,11 @@ import {
 } from '@/db/queries/workout';
 import { formatDuration } from '@/lib/geo';
 import type { WeightUnit } from '@/lib/units';
+import { useFontScale } from '@/hooks/use-font-scale';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
+import { KeyboardDoneBar } from '@/components/keyboard-done-bar';
+import { BackButton } from '@/components/screen-header';
 
 // The NOTE/MEDIA quick actions' own fixed hues — same amber/purple the
 // History recap screen's DETAILS sheet uses for its NOTE/MEDIA sections,
@@ -43,7 +47,8 @@ function hasSetData(set?: SessionSet) {
 
 function LiveDuration({ startedAt }: { startedAt?: string }) {
   const palette = useNutritionPalette();
-  const styles = useMemo(() => createStyles(palette), [palette]);
+  const fontScale = useFontScale();
+  const styles = useMemo(() => createStyles(palette, fontScale), [palette, fontScale]);
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
@@ -58,7 +63,8 @@ export default function SessionScreen() {
   const { sessionId } = useLocalSearchParams<{ sessionId: string }>();
   const id = sessionId;
   const palette = useNutritionPalette();
-  const styles = useMemo(() => createStyles(palette), [palette]);
+  const fontScale = useFontScale();
+  const styles = useMemo(() => createStyles(palette, fontScale), [palette, fontScale]);
   const theme = { text: palette.text, background: palette.background, backgroundElement: palette.card, backgroundSelected: palette.raised, textSecondary: palette.muted, border: palette.border, accent: palette.blue, accentOn: palette.background, destructive: palette.red };
 
   const { data: session } = useSession(id);
@@ -147,7 +153,7 @@ export default function SessionScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           keyboardVerticalOffset={insets.top}>
           <View style={styles.topBar}>
-            <Pressable accessibilityLabel="Close" onPress={() => router.back()} hitSlop={10}><ThemedText style={styles.symbol}>×</ThemedText></Pressable>
+            <BackButton onPress={() => router.back()} />
             <Pressable onPress={finish} style={styles.finishButton}>
               <ThemedText style={styles.finishText}>{t('finish').toUpperCase()}</ThemedText>
             </Pressable>
@@ -168,7 +174,7 @@ export default function SessionScreen() {
                     {editingName ? (
                       <TextInput value={nameValue} onChangeText={setNameValue} onEndEditing={saveName} onBlur={saveName} autoFocus placeholder={t('workout')} placeholderTextColor={theme.textSecondary} style={[styles.titleInput, { color: theme.text, borderColor: theme.border }]} />
                     ) : (
-                      <Pressable onPress={() => setEditingName(true)} hitSlop={8}><ThemedText style={styles.sessionTitle}>{session?.name || t('workout').toUpperCase()}</ThemedText></Pressable>
+                      <Pressable onPress={() => setEditingName(true)} hitSlop={8}><ThemedText numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.6} style={styles.sessionTitle}>{session?.name || t('workout').toUpperCase()}</ThemedText></Pressable>
                     )}
                     <View style={styles.sessionMetaRow}>
                       <LiveDuration startedAt={session?.startedAt} /><ThemedText style={styles.metaDivider}>|</ThemedText><ThemedText style={styles.sessionMeta}>{exerciseLogsList.length} {t('exercises').toUpperCase()}</ThemedText><ThemedText style={styles.metaDivider}>|</ThemedText><ThemedText style={styles.sessionMeta}>{totalSets} {t('sets').toUpperCase()}</ThemedText>
@@ -240,7 +246,8 @@ function ExerciseBlock({
 }) {
   const { t } = useT();
   const palette = useNutritionPalette();
-  const styles = useMemo(() => createStyles(palette), [palette]);
+  const fontScale = useFontScale();
+  const styles = useMemo(() => createStyles(palette, fontScale), [palette, fontScale]);
   const theme = { text: palette.text, background: palette.background, backgroundElement: palette.card, backgroundSelected: palette.raised, textSecondary: palette.muted, border: palette.border, accent: palette.blue, accentOn: palette.background, destructive: palette.red };
   const addSet = useAddSet(sessionId);
   const updateSet = useUpdateSet(sessionId);
@@ -311,6 +318,7 @@ function ExerciseBlock({
             </Pressable>
           </KeyboardAvoidingView>
         </Pressable>
+        <KeyboardDoneBar placement="modal" />
       </Modal>
 
       {log.sets.length > 0 && (
@@ -445,7 +453,9 @@ function ExerciseBlock({
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+// fs: capped OS text-size factor (useFontScale) — the table's fixed column
+// widths hold text, so they grow with it.
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>, fs: number) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: palette.background,
@@ -471,7 +481,6 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
     borderBottomWidth: 1,
     borderColor: palette.border,
   },
-  symbol: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 24, lineHeight: 27 },
   smallSymbol: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 14, lineHeight: 18 },
   sessionHeaderCard: {
     padding: Spacing.three,
@@ -566,7 +575,8 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
   detailAction: { minHeight: 48, justifyContent: 'center', paddingHorizontal: Spacing.three, borderWidth: 1, borderColor: palette.blue },
   detailActionText: { color: palette.blue, fontFamily: Fonts.technical, fontSize: 11, letterSpacing: 0.5 },
   detailLabel: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: 0.45 },
-  detailNoteInput: { minHeight: 96, borderWidth: StyleSheet.hairlineWidth, padding: Spacing.two, fontSize: 15, textAlignVertical: 'top' },
+  // maxHeight: long notes scroll inside the box (see set-row.tsx modalNoteInput).
+  detailNoteInput: { minHeight: 96, maxHeight: 180, borderWidth: StyleSheet.hairlineWidth, padding: Spacing.two, fontSize: 15, textAlignVertical: 'top' },
   detailDone: { minHeight: 42, alignItems: 'center', justifyContent: 'center', borderTopWidth: StyleSheet.hairlineWidth, borderColor: palette.border },
   detailDoneText: { color: palette.blue, fontFamily: Fonts.technical, fontSize: 11, letterSpacing: 0.7 },
   setHeaderRow: {
@@ -596,13 +606,13 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
   setNumberColumn: {
     // 20px wrapped "SET" onto two lines ("SE"/"T") — matches set-row.tsx's
     // and History's own 32px column.
-    width: 32,
+    width: 32 * fs,
   },
   setInputColumn: {
     flex: 1,
   },
   metricsHeader: { flex: 1 },
-  effortHeader: { width: 64, textAlign: 'right' },
+  effortHeader: { width: 64 * fs, textAlign: 'right' },
   addSetButton: {
     alignSelf: 'stretch',
     alignItems: 'center',

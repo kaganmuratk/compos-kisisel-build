@@ -148,7 +148,8 @@ export function NutritionBackButton({ onPress, color }: { onPress: () => void; c
   const ui = useSharedUiStyles();
   return (
     <Pressable accessibilityLabel="Back" onPress={onPress} hitSlop={12} style={ui.backButton}>
-      <ThemedText style={[ui.backSymbol, color ? { color } : null]}>‹</ThemedText>
+      {/* Same glyph/size as screen-header.tsx's BackButton (icon: no OS text scaling). */}
+      <ThemedText allowFontScaling={false} style={[ui.backSymbol, color ? { color } : null]}>‹</ThemedText>
     </Pressable>
   );
 }
@@ -163,6 +164,16 @@ export function TrashIcon({ size = 16, color }: { size?: number; color: string }
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
+// Disclosure chevron for collapsible sections — SVG for the same reason as
+// TrashIcon above.
+export function ChevronIcon({ size = 16, color, direction = 'down' }: { size?: number; color: string; direction?: 'up' | 'down' }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path d={direction === 'down' ? 'M6 9l6 6 6-6' : 'M6 15l6-6 6 6'} stroke={color} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
     </Svg>
   );
 }

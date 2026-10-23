@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScreenHeader } from '@/components/screen-header';
 import { getExerciseCategoryColor } from '@/components/set-row';
@@ -11,6 +11,7 @@ import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useDayExercises, useProgramDay, useRemoveDayExercise, useUpdateDayExercise } from '@/db/queries/programs';
 import { useActiveSession } from '@/db/queries/workout';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
 type DayExercise = NonNullable<ReturnType<typeof useDayExercises>['data']>[number];
 export default function ProgramDayScreen() {
   const palette = useNutritionPalette();
@@ -33,7 +34,7 @@ export default function ProgramDayScreen() {
           eyebrow={t('trainingDayLabel').toUpperCase()}
           title={day.name}
           accentColor={palette.blue}
-          onBack={() => router.push({ pathname: '/programs/[id]', params: { id: String(day.programId) } })}
+          onBack={() => router.dismissTo({ pathname: '/programs/[id]', params: { id: String(day.programId) } })}
         />
         <Pressable onPress={start} style={active ? styles.resume : styles.start}>
           <ThemedText style={active ? styles.resumeLabel : styles.startLabel}>{(active ? t('resumeActiveWorkout') : t('startWorkoutLabel')).toUpperCase()}</ThemedText>

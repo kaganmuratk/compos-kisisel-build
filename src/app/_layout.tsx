@@ -15,6 +15,7 @@ import * as Updates from 'expo-updates';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Appearance, AppState, Platform, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
 
 import { legacyMigratorDb } from '@/db/client';
@@ -25,6 +26,7 @@ import { supabaseConnector } from '@/db/supabase-connector';
 import { runUuidMigration } from '@/db/uuid-migration';
 import { AuthProvider, useAuth } from '@/hooks/use-auth';
 import { useAuthDeepLink } from '@/hooks/use-auth-deep-link';
+import { KeyboardDoneBar, modalScreenLayout } from '@/components/keyboard-done-bar';
 import { recoverPendingMediaPick } from '@/lib/pending-media-recovery';
 // Compos Kişisel: koç bildirimlerinin arka plan görevi uygulama arka planda başlatıldığında da tanımlı olmalı
 // (modül kendi içinde sadece Kişisel + native'de etkin; normal Compos'ta hiçbir şey yapmaz).
@@ -352,23 +354,26 @@ function RootLayoutNav() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="workout" options={{ presentation: fullScreenModalPresentation }} />
-          <Stack.Screen name="run" options={{ presentation: fullScreenModalPresentation }} />
-          <Stack.Screen name="nutrition" />
-          <Stack.Screen name="exercise/new" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="supplement/new" options={{ presentation: 'modal' }} />
-          <Stack.Screen name="account" options={{ presentation: 'modal' }} />
-        </Stack>
-        {webUpdateReady && (
-          <Pressable accessibilityRole="button" onPress={applyWebUpdate} style={styles.webUpdateBanner}>
-            <Text style={styles.webUpdateText}>Yeni sürüm hazır · Yenile</Text>
-          </Pressable>
-        )}
-      </ThemeProvider>
+      <KeyboardProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+          <Stack screenOptions={{ headerShown: false }} screenLayout={modalScreenLayout}>
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="workout" options={{ presentation: fullScreenModalPresentation }} />
+            <Stack.Screen name="run" options={{ presentation: fullScreenModalPresentation }} />
+            <Stack.Screen name="nutrition" />
+            <Stack.Screen name="exercise/new" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="supplement/new" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="account" options={{ presentation: 'modal' }} />
+          </Stack>
+          <KeyboardDoneBar />
+          {webUpdateReady && (
+            <Pressable accessibilityRole="button" onPress={applyWebUpdate} style={styles.webUpdateBanner}>
+              <Text style={styles.webUpdateText}>Yeni sürüm hazır · Yenile</Text>
+            </Pressable>
+          )}
+        </ThemeProvider>
+      </KeyboardProvider>
     </GestureHandlerRootView>
   );
 }

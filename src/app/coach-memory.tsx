@@ -1,6 +1,7 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PaletteText as ThemedText, cardShadowFor, useNutritionPalette } from '@/components/nutrition-ui';
@@ -8,6 +9,8 @@ import { ScreenHeader } from '@/components/screen-header';
 import { ThemedView } from '@/components/themed-view';
 import { Fonts, Spacing } from '@/constants/theme';
 import { coachFetch, useCoachConfig } from '@/lib/coach-client';
+import { TextInput } from '@/components/text-input';
+import { KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
 
 type Palette = ReturnType<typeof useNutritionPalette>;
 type Fact = { key: string; value: string; category: string; updated_at: string };
@@ -87,7 +90,7 @@ export default function CoachMemoryScreen() {
         {error ? <ThemedText style={styles.error}>{error}</ThemedText> : null}
         {!data && !error ? <ActivityIndicator style={styles.loading} color={palette.muted} /> : null}
         {data ? (
-          <ScrollView contentContainerStyle={styles.content}>
+          <KeyboardAwareScrollView bottomOffset={KEYBOARD_BAR_CLEARANCE} contentContainerStyle={styles.content}>
             <ThemedText style={styles.intro}>
               Koçun senin hakkında kalıcı olarak kaydettikleri. Yanlış ya da eskimiş bir şey varsa düzelt ya da sil; sohbette
               "bunu unut" demek de aynı işi görür.
@@ -174,7 +177,7 @@ export default function CoachMemoryScreen() {
             <ThemedText style={styles.footer}>
               Ayrıca {data.places} mekan ve {data.products} market/kafe ürünü kayıtlı. Bunları sohbette sorabilir, "artık yok" diyerek sildirebilirsin.
             </ThemedText>
-          </ScrollView>
+          </KeyboardAwareScrollView>
         ) : null}
       </SafeAreaView>
     </ThemedView>

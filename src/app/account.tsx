@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PaletteText as ThemedText, useNutritionPalette } from '@/components/nutrition-ui';
@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { friendlyErrorMessage } from '@/lib/errors';
 import { supabase } from '@/lib/supabase';
 import { useT, type AppLanguage } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 // A full self-service delete needs a service_role-privileged Supabase Edge
@@ -192,7 +193,7 @@ function AuthForm() {const palette=useNutritionPalette();const styles=useMemo(()
       return;
     }
     if (mode === 'signIn') {
-      router.replace('/(tabs)');
+      router.dismissTo('/(tabs)');
       return;
     }
     setConfirmationSent(true);

@@ -66,3 +66,11 @@ export const Radius = {
 
 export const BottomTabInset = Platform.select({ ios: 50, android: 80 }) ?? 0;
 export const MaxContentWidth = 800;
+
+// Upper bound for the OS text-size setting (iOS Dynamic Type / Android font
+// size). Text still grows with the setting up to this factor — 1.35 covers
+// every standard (non-"accessibility") iOS size and Android's large presets —
+// but beyond it the dense tables (set rows, charts, tooltips) can't stay
+// legible on a phone-width screen. ThemedText and the app's TextInput apply
+// it by default; fixed-size boxes that hold text scale with useFontScale().
+export const MAX_FONT_SCALE = 1.35;

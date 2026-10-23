@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
@@ -22,12 +22,14 @@ import {
 } from '@/db/queries/exercises';
 import { useSettings } from '@/db/queries/settings';
 import { alertMessage } from '@/lib/alert';
-import { formatDayMonth as formatDate } from '@/lib/date';
+import { formatDayMonth as formatDate, formatShortDate } from '@/lib/date';
 import { persistPickedAsset } from '@/lib/media';
 import { estimatedOneRepMax, nearestBodyweightKg } from '@/lib/strength';
 import { fromKg } from '@/lib/units';
 import { getExerciseCategoryLabel } from '@/lib/exercise-category';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
+import { BackButton } from '@/components/screen-header';
 
 type AppTheme = { text: string; textSecondary: string; backgroundElement: string; border: string; accent: string; accentOn: string };
 
@@ -170,9 +172,7 @@ export default function ExerciseDetailScreen() {
       <SafeAreaView style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.headerRow}>
-            <Pressable accessibilityLabel="Geri" onPress={() => router.push('/analysis/exercises')} hitSlop={12} style={styles.back}>
-              <ThemedText style={[styles.backSymbol, { color: theme.accent }]}>‹</ThemedText>
-            </Pressable>
+            <BackButton color={theme.accent} onPress={() => router.dismissTo('/analysis/exercises')} />
             <Pressable
               accessibilityLabel="Hareket görseli ekle"
               onPress={pickImage}
@@ -207,7 +207,7 @@ export default function ExerciseDetailScreen() {
               </ThemedText>
             </View>
           </View>
-          <View style={styles.recordStrip}><View><ThemedText style={styles.recordValue}>{sessions.length}</ThemedText><ThemedText style={styles.recordLabel}>{t('workouts').toUpperCase()}</ThemedText></View><View><ThemedText style={styles.recordValue}>{history.length}</ThemedText><ThemedText style={styles.recordLabel}>{t('setsLogged').toUpperCase()}</ThemedText></View><View><ThemedText style={styles.recordValue}>{exercise.weightMode === 'pin' ? (pinChartData.length ? Math.max(...pinChartData.map((point) => point.value)).toFixed(1) : '—') : (chartData.length ? Math.max(...chartData.map((point) => point.value)).toFixed(1) : '—')}</ThemedText><ThemedText style={styles.recordLabel}>{(exercise.weightMode === 'pin' ? t('bestPinScore') : t('bestEstimatedOneRm')).toUpperCase()}</ThemedText></View></View>
+          <View style={styles.recordStrip}><View style={styles.recordItem}><ThemedText style={styles.recordValue}>{sessions.length}</ThemedText><ThemedText style={styles.recordLabel}>{t('workouts').toUpperCase()}</ThemedText></View><View style={styles.recordItem}><ThemedText style={styles.recordValue}>{history.length}</ThemedText><ThemedText style={styles.recordLabel}>{t('setsLogged').toUpperCase()}</ThemedText></View><View style={styles.recordItem}><ThemedText style={styles.recordValue}>{exercise.weightMode === 'pin' ? (pinChartData.length ? Math.max(...pinChartData.map((point) => point.value)).toFixed(1) : '—') : (chartData.length ? Math.max(...chartData.map((point) => point.value)).toFixed(1) : '—')}</ThemedText><ThemedText style={styles.recordLabel}>{(exercise.weightMode === 'pin' ? t('bestPinScore') : t('bestEstimatedOneRm')).toUpperCase()}</ThemedText></View></View>
 
           {sessions.length === 0 ? (
             <View style={styles.emptyState}>
@@ -231,7 +231,7 @@ export default function ExerciseDetailScreen() {
               ) : (
                 <>
                   <OneRepMaxChart
-                    title={hasUnilateralData ? `${t('estOneRm').toUpperCase()} · ${t('sideRight').toUpperCase()} (${unit.toUpperCase()})` : `${t('estOneRm').toUpperCase()} (${unit.toUpperCase()})`}
+                    title={hasUnilateralData ? `${t('estOneRm').toUpperCase()} · ${t('sideRight').toUpperCase()}` : t('estOneRm').toUpperCase()}
                     data={chartData}
                     theme={theme}
                     unit={unit}
@@ -239,7 +239,7 @@ export default function ExerciseDetailScreen() {
                   />
                   {hasUnilateralData && (
                     <OneRepMaxChart
-                      title={`${t('estOneRm').toUpperCase()} · ${t('sideLeft').toUpperCase()} (${unit.toUpperCase()})`}
+                      title={`${t('estOneRm').toUpperCase()} · ${t('sideLeft').toUpperCase()}`}
                       data={leftChartData}
                       theme={theme}
                       unit={unit}
@@ -325,7 +325,9 @@ function OneRepMaxChart({
   // point get an axis label (same sparse labeling this screen always used)
   // instead of one per point.
   const labelIndexes = new Set([0, Math.floor((data.length - 1) / 2), data.length - 1]);
-  const chartData = data.map((point, index) => ({ ...point, axisLabel: labelIndexes.has(index) ? point.label : undefined }));
+  // Short month on the axis ("29 Eyl") — the full one ("29 Eylül") didn't
+  // fit under a point and was truncated; the tooltip keeps the full label.
+  const chartData = data.map((point, index) => ({ ...point, axisLabel: labelIndexes.has(index) ? (point.dateKey ? formatShortDate(point.dateKey) : point.label) : undefined }));
   return <TimeSeriesChart title={title} unit={unit} data={chartData} kind="oneRepMax" color={theme.accent} surfaceColor={theme.backgroundElement} borderColor={theme.border} />;
 }
 
@@ -337,15 +339,6 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
     flex: 1,
     paddingHorizontal: Spacing.three,
     paddingTop: Spacing.three,
-  },
-  back: {
-    width: 28,
-    height: 44,
-    justifyContent: 'center',
-  },
-  backSymbol: {
-    fontFamily: Fonts.technical,
-    fontSize: 22,
   },
   titleInput: {
     fontSize: 32,
@@ -418,9 +411,12 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
   historyList: {
     gap: Spacing.three,
   },
-  recordStrip: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: Spacing.two, borderTopWidth: 1, borderBottomWidth: 1, borderColor: palette.border },
+  recordStrip: { flexDirection: 'row', gap: Spacing.two, paddingVertical: Spacing.two, borderTopWidth: 1, borderBottomWidth: 1, borderColor: palette.border },
+  // Equal columns whose labels wrap — sized to content, the three labels ran
+  // into one another ("ANTRENMANLARKAYDEDILEN…") at larger text sizes.
+  recordItem: { flex: 1, minWidth: 0 },
   recordValue: { color: palette.blue, fontFamily: Fonts.metric, fontSize: 28, lineHeight: 30 },
-  recordLabel: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 8, letterSpacing: 0.5 },
+  recordLabel: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 8, lineHeight: 12, letterSpacing: 0.5 },
   addSetButton: {
     alignSelf: 'flex-start',
     paddingVertical: Spacing.one,

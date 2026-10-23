@@ -4,5 +4,5 @@ import NutritionScreen from '@/app/(tabs)/nutrition';
 
 export default function NutritionDayRecapScreen() {
   const { date } = useLocalSearchParams<{ date: string }>();
-  return <NutritionScreen date={date} onBack={() => router.replace({ pathname: '/history/day/[date]', params: { date } })} />;
+  return <NutritionScreen date={date} onBack={() => router.dismissTo({ pathname: '/history/day/[date]', params: { date } })} />;
 }

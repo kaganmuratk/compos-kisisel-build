@@ -1,12 +1,13 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { NutritionPage, NutritionPrimaryButton, useNutritionPalette, useNutritionUi } from '@/components/nutrition-ui';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useAddCustomFood } from '@/db/queries/nutrition';
 import { useT } from '@/lib/i18n';
+import { TextInput } from '@/components/text-input';
 
 export default function NewFoodScreen() {
   const { t } = useT();
