@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState, type CSSProperties } from 'react';
-import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ThemedView } from '@/components/themed-view';
@@ -12,6 +12,7 @@ import { exerciseCategories } from '@/db/seed-data';
 import { exerciseCategoryLabels } from '@/lib/exercise-category';
 import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
+import { softSheet } from '@/constants/soft-sheet';
 
 
 export default function NewExerciseScreen() {const palette=useNutritionPalette();const styles=useMemo(()=>createStyles(palette),[palette]);
@@ -160,7 +161,7 @@ export default function NewExerciseScreen() {const palette=useNutritionPalette()
   );
 }
 
-const createStyles=(palette:ReturnType<typeof useNutritionPalette>)=>StyleSheet.create({
+const createStyles=(palette:ReturnType<typeof useNutritionPalette>)=>softSheet({
   page: { flex: 1, backgroundColor: palette.background },
   safeArea: { flex: 1, paddingHorizontal: Spacing.three },
   content: { flexGrow: 1, paddingVertical: Spacing.four, gap: Spacing.three },

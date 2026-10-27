@@ -1,9 +1,10 @@
 import type { ReactElement, ReactNode } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { KeyboardToolbar } from 'react-native-keyboard-controller';
 
 import { useNutritionPalette } from '@/components/nutrition-ui';
 import { useT } from '@/lib/i18n';
+import { softSheet } from '@/constants/soft-sheet';
 
 // A "TAMAM" bar riding on top of the keyboard whenever any input is focused —
 // the one reliable way out of the keyboard. Before this, closing it meant
@@ -46,4 +47,4 @@ export function modalScreenLayout({ children, options }: { children: ReactNode; 
   );
 }
 
-const styles = StyleSheet.create({ fill: { flex: 1 } });
+const styles = softSheet({ fill: { flex: 1 } });

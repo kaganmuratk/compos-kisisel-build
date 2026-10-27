@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, View } from 'react-native';
 
 import { FoodMacroDetail } from '@/components/food-macro-detail';
 import { NutritionEmpty, NutritionPage, NutritionPrimaryButton, PaletteText as ThemedText, useNutritionPalette, useNutritionUi } from '@/components/nutrition-ui';
@@ -13,6 +13,7 @@ import { getFoodNameLabel } from '@/lib/food-name';
 import { useT } from '@/lib/i18n';
 import { parsePortions } from '@/lib/nutrition';
 import { TextInput } from '@/components/text-input';
+import { softSheet } from '@/constants/soft-sheet';
 
 export default function AddFoodToPlanScreen() {
   const nutritionUi = useNutritionUi();
@@ -74,7 +75,7 @@ export default function AddFoodToPlanScreen() {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   list: { paddingTop: Spacing.three },
   detailContent: { gap: Spacing.three, paddingBottom: Spacing.four },
   amountRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },

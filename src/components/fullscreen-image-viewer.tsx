@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
-import { Modal, Pressable, StyleSheet } from 'react-native';
+import { Modal, Pressable } from 'react-native';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Tap-to-close, aspect-fit fullscreen preview — used wherever a small media
 // thumbnail (session/set images) needs a "look bigger" affordance.
@@ -13,7 +14,7 @@ export function FullscreenImageViewer({ uri, onClose }: { uri: string | null; on
   );
 }
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   backdrop: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.92)',

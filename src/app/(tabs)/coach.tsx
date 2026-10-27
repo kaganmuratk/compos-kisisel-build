@@ -1,7 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, AppState, FlatList, Image, KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, AppState, FlatList, Image, KeyboardAvoidingView, Modal, Platform, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Path } from 'react-native-svg';
 
@@ -12,6 +12,7 @@ import { findTodaySessionForDay, useStartCoachSession } from '@/db/queries/coach
 import { markCoachSeen, setupCoachNotifications } from '@/lib/coach-notifications';
 import { CoachConfig, CoachMessage, CoachTodaySession, OutboxItem, coachFetch, coachImageSource, flushOutbox, loadCoachConfig, loadOutbox, queueOutgoing, saveCoachConfig } from '@/lib/coach-client';
 import { TextInput } from '@/components/text-input';
+import { softSheet } from '@/constants/soft-sheet';
 
 type Palette = ReturnType<typeof useNutritionPalette>;
 
@@ -462,7 +463,7 @@ function CoachConfigCard({ palette, initial, onSaved }: { palette: Palette; init
 }
 
 const createStyles = (palette: Palette) =>
-  StyleSheet.create({
+  softSheet({
     page: { flex: 1, backgroundColor: palette.background },
     safe: { flex: 1, paddingHorizontal: Spacing.three },
     flex: { flex: 1 },

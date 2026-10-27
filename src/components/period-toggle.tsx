@@ -6,6 +6,7 @@ import { useNutritionPalette } from '@/components/nutrition-ui';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useT } from '@/lib/i18n';
 import type { BarPeriod } from '@/lib/period-bars';
+import { softSheet } from '@/constants/soft-sheet';
 
 // `hidden` removes an option from the toggle entirely (vs. `disabled`,
 // which keeps it visible but greyed out and unpressable) — for a period
@@ -26,7 +27,7 @@ export function PeriodToggle({ value, onChange, disabled = [], hidden = [] }: { 
   return <View style={styles.toggle}>{options.map((option) => { const isDisabled = disabled.includes(option.key); return <Pressable key={option.key} disabled={isDisabled} onPress={() => onChange(option.key)} style={[styles.option, value === option.key && styles.selected, isDisabled && styles.disabled]}><ThemedText style={[styles.label, value === option.key && styles.selectedLabel]}>{option.label}</ThemedText></Pressable>; })}</View>;
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   toggle: { flexDirection: 'row', borderWidth: StyleSheet.hairlineWidth, borderColor: palette.border, borderRadius: Radius.sm, overflow: 'hidden' },
   option: { minWidth: 30, minHeight: 28, alignItems: 'center', justifyContent: 'center', paddingHorizontal: Spacing.one },
   // Filled accent, same as ShareModeToggle — the old raised-surface fill was

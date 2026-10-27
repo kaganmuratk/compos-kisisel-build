@@ -7,6 +7,7 @@ import { RouteShapeSvg, type ShapePoint } from '@/components/route-shape-svg';
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { formatDuration, formatPace, type RoutePoint } from '@/lib/geo';
 import { projectRoute } from '@/lib/route-svg';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Fixed 9:16 (Instagram Story) aspect ratio, rendered at a small on-screen
 // size and captured at full resolution — see run/share/[id].tsx.
@@ -144,7 +145,7 @@ export const RunShareCard = forwardRef<View, RunShareCardProps>(function RunShar
   );
 });
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   card: {
     width: SHARE_CARD_WIDTH,
     height: SHARE_CARD_HEIGHT,

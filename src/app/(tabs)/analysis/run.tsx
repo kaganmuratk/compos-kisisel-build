@@ -15,6 +15,7 @@ import { formatShortDate } from '@/lib/date';
 import { formatDuration } from '@/lib/geo';
 import { buildPeriodBars, type BarPeriod } from '@/lib/period-bars';
 import { useT } from '@/lib/i18n';
+import { softSheet } from '@/constants/soft-sheet';
 
 const ranges = [7, 30, 90, null] as const;
 // 'day' only makes sense for the 7-day range — at 30/90/all it would only
@@ -155,7 +156,7 @@ export default function RunAnalysisScreen() {const palette=useNutritionPalette()
     </ThemedView>
   );
 }
-const createStyles=(palette:ReturnType<typeof useNutritionPalette>)=>StyleSheet.create({
+const createStyles=(palette:ReturnType<typeof useNutritionPalette>)=>softSheet({
   page: { flex: 1, backgroundColor: palette.background },
   safe: { flex: 1, paddingHorizontal: Spacing.three },
   content: { gap: Spacing.three, paddingBottom: Spacing.six },

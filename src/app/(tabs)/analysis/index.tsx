@@ -9,6 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useHistoryDays } from '@/db/queries/history-days';
 import { useT } from '@/lib/i18n';
+import { softSheet } from '@/constants/soft-sheet';
 
 type InsightIconName = 'exercise' | 'nutrition' | 'activity' | 'body';
 
@@ -99,7 +100,7 @@ export default function AnalysisScreen() {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   page: { flex: 1, backgroundColor: palette.background },
   safeArea: { flex: 1, paddingHorizontal: Spacing.three },
   content: { paddingBottom: Spacing.six },

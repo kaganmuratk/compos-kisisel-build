@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/hooks/use-theme';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Lightweight "coordinate plane" grid overlay for the hand-rolled bar charts
 // (which don't use react-native-gifted-charts). Lines are laid out via
@@ -28,7 +29,7 @@ export function ChartGrid({ rows, columns }: { rows: number; columns?: number })
   );
 }
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   rows: {
     flex: 1,
     justifyContent: 'space-between',

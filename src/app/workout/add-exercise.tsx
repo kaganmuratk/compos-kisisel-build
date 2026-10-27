@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Pressable, SectionList, StyleSheet, View } from 'react-native';
+import { Pressable, SectionList, View } from 'react-native';
 import { useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -15,6 +15,7 @@ import { alertMessage } from '@/lib/alert';
 import { exerciseCategoryLabels } from '@/lib/exercise-category';
 import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
+import { softSheet } from '@/constants/soft-sheet';
 
 export default function AddExerciseScreen() {
   const { t } = useT();
@@ -51,7 +52,7 @@ export default function AddExerciseScreen() {
 }
 
 function cardShadowFor(palette: ReturnType<typeof useNutritionPalette>) { return palette.background === '#FAFAF8' ? { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 3, elevation: 2 } : {}; }
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   page: { flex: 1, backgroundColor: palette.background }, safeArea: { flex: 1, paddingHorizontal: Spacing.three },
   newButton: { width: 34, height: 34, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.blue }, newText: { color: palette.background, fontFamily: Fonts.technical, fontSize: 20 },
   list: { paddingBottom: Spacing.six }, section: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: 1, paddingTop: Spacing.three, paddingBottom: Spacing.one },

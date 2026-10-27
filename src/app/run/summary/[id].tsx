@@ -25,6 +25,7 @@ import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
 import { BackButton } from '@/components/screen-header';
 import { KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
+import { softSheet } from '@/constants/soft-sheet';
 
 export default function RunSummaryScreen() {
   const { t, language } = useT();
@@ -528,7 +529,7 @@ function MovementLegendItem({ color, label, seconds, minutesUnit }: { color: str
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   container: {
     flex: 1,
     backgroundColor: palette.background,

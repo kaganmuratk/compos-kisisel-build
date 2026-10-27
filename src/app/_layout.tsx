@@ -13,7 +13,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Updates from 'expo-updates';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Appearance, AppState, Platform, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { ActivityIndicator, Appearance, AppState, Platform, Pressable, Text, useColorScheme, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator';
@@ -45,6 +45,7 @@ import {
 import { dedupeSupplementLogs } from '@/db/queries/supplements';
 import { ensureUncategorizedSupplementCategory } from '@/db/queries/supplement-categories';
 import '@/lib/background-location';
+import { softSheet } from '@/constants/soft-sheet';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -108,6 +109,16 @@ function RootLayoutNav() {
     BarlowCondensed_700Bold: webFont('/fonts/BarlowCondensed-Bold.ttf', BarlowCondensed_700Bold),
     IBMPlexMono_500Medium: webFont('/fonts/IBMPlexMono-Medium.ttf', IBMPlexMono_500Medium),
     IBMPlexMono_700Bold: webFont('/fonts/IBMPlexMono-Bold.ttf', IBMPlexMono_700Bold),
+    // General Sans (Fontshare, ITF Free Font License) for the soft design —
+    // one alias per role, see Fonts in constants/theme.ts.
+    GeneralSans_400Regular: webFont('/fonts/GeneralSans-Regular.ttf', require('@/assets/fonts/GeneralSans-Regular.ttf')),
+    GeneralSans_500Medium: webFont('/fonts/GeneralSans-Medium.ttf', require('@/assets/fonts/GeneralSans-Medium.ttf')),
+    GeneralSans_600SemiBold: webFont('/fonts/GeneralSans-Semibold.ttf', require('@/assets/fonts/GeneralSans-Semibold.ttf')),
+    GeneralSans_700Bold: webFont('/fonts/GeneralSans-Bold.ttf', require('@/assets/fonts/GeneralSans-Bold.ttf')),
+    GeneralSans_Metric: webFont('/fonts/GeneralSans-Semibold.ttf', require('@/assets/fonts/GeneralSans-Semibold.ttf')),
+    GeneralSans_MetricMedium: webFont('/fonts/GeneralSans-Medium.ttf', require('@/assets/fonts/GeneralSans-Medium.ttf')),
+    GeneralSans_Label: webFont('/fonts/GeneralSans-Medium.ttf', require('@/assets/fonts/GeneralSans-Medium.ttf')),
+    GeneralSans_LabelBold: webFont('/fonts/GeneralSans-Semibold.ttf', require('@/assets/fonts/GeneralSans-Semibold.ttf')),
   });
   // Runs against the pre-Faz-2 file (legacyMigratorDb/sqliteDb) — brings it
   // up to date so uuid-migration.ts can safely read every column it expects.
@@ -416,7 +427,7 @@ function StartupScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   startupScreen: {
     flex: 1,
     alignItems: 'center',

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PaletteText as ThemedText, cardShadowFor, useNutritionPalette } from '@/components/nutrition-ui';
 import { ScreenHeader } from '@/components/screen-header';
@@ -10,6 +10,7 @@ import { useCheckinHistory, useWaterHistory } from '@/db/queries/daily';
 import { useSettings } from '@/db/queries/settings';
 import { useT } from '@/lib/i18n';
 import { fromKg } from '@/lib/units';
+import { softSheet } from '@/constants/soft-sheet';
 
 export default function BodyAnalysisScreen() {
   const { t } = useT(); const palette = useNutritionPalette(); const styles = useMemo(() => createStyles(palette), [palette]); const cardShadow = cardShadowFor(palette);
@@ -20,4 +21,4 @@ export default function BodyAnalysisScreen() {
   return <ThemedView lightColor={palette.background} darkColor={palette.background} style={styles.page}><SafeAreaView style={styles.safe} edges={['top']}><ScreenHeader eyebrow={t('bodySignals').toUpperCase()} title={t('body').toUpperCase()} accentColor={palette.red} backHref="/analysis" /><View style={styles.grid}>{metrics.map(([key, label]) => <Pressable key={key} onPress={() => router.push({ pathname: '/analysis/body/[metric]', params: { metric: key } })} style={[styles.tile, cardShadow]}><View><ThemedText style={styles.metric}>{label}</ThemedText><ThemedText style={styles.latestLabel}>{t('latest').toUpperCase()}</ThemedText><ThemedText style={styles.latestValue}>{latest[key]}</ThemedText></View><ThemedText style={styles.open}>{t('viewTrend').toUpperCase()}</ThemedText></Pressable>)}</View></SafeAreaView></ThemedView>;
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({ page: { flex: 1, backgroundColor: palette.background }, safe: { flex: 1, paddingHorizontal: Spacing.three }, grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two }, tile: { width: '48%', minHeight: 145, padding: Spacing.three, justifyContent: 'space-between', backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border }, metric: { color: palette.red, fontFamily: Fonts.metricMedium, fontSize: 21 }, latestLabel: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 7, letterSpacing: .6, marginTop: Spacing.two }, latestValue: { color: palette.text, fontFamily: Fonts.metric, fontSize: 20, marginTop: 2 }, open: { color: palette.text, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: .7 } });
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({ page: { flex: 1, backgroundColor: palette.background }, safe: { flex: 1, paddingHorizontal: Spacing.three }, grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two }, tile: { width: '48%', minHeight: 145, padding: Spacing.three, justifyContent: 'space-between', backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border }, metric: { color: palette.red, fontFamily: Fonts.metricMedium, fontSize: 21 }, latestLabel: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 7, letterSpacing: .6, marginTop: Spacing.two }, latestValue: { color: palette.text, fontFamily: Fonts.metric, fontSize: 20, marginTop: 2 }, open: { color: palette.text, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: .7 } });

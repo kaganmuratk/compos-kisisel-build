@@ -1,13 +1,14 @@
 import { router } from 'expo-router';
 import * as Updates from 'expo-updates';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Appearance, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Appearance, DevSettings, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { desc, isNotNull } from 'drizzle-orm';
 
 import { ThemedView } from '@/components/themed-view';
 import { PaletteText as ThemedText, useNutritionPalette } from '@/components/nutrition-ui';
-import { Fonts, Radius, Spacing } from '@/constants/theme';
+import { writeDesignVariant } from '@/constants/design-variant-storage';
+import { designVariant, Fonts, Radius, Spacing } from '@/constants/theme';
 import { db } from '@/db/client';
 import { powerSyncDb } from '@/db/powersync';
 import { useSettings, useUpdateSettings } from '@/db/queries/settings';
@@ -23,6 +24,7 @@ import { openHealthConnectSettings, queryRawSampleCounts } from '@/lib/health-co
 import { shareOrDownloadImage } from '@/lib/share-image';
 import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
+import { softSheet } from '@/constants/soft-sheet';
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   return Promise.race([
@@ -209,6 +211,31 @@ export default function SettingsScreen() {
               );
             })}
           </View>
+          </View>
+          <View style={styles.rule} />
+          <View style={styles.settingBlock}>
+            <ThemedText style={styles.cardTitle}>{t('designStyle').toUpperCase()}</ThemedText>
+            <View style={styles.chipRow}>
+              {([['soft', t('designSoft').toUpperCase()], ['classic', t('designClassic').toUpperCase()]] as const).map(([variant, label]) => {
+                const selected = designVariant === variant;
+                return (
+                  <Pressable
+                    key={variant}
+                    onPress={() => {
+                      if (selected) return;
+                      // Fonts and every StyleSheet are resolved once at module
+                      // load, so the switch takes effect on a fresh start.
+                      writeDesignVariant(variant);
+                      if (Platform.OS === 'web') window.location.reload();
+                      else if (__DEV__) DevSettings.reload();
+                      else void Updates.reloadAsync();
+                    }}
+                    style={[styles.chip, selected && styles.chipSelected]}>
+                    <ThemedText type="smallBold" style={{ color: selected ? theme.accentOn : theme.text }}>{label}</ThemedText>
+                  </Pressable>
+                );
+              })}
+            </View>
           </View>
           <View style={styles.rule} />
           <View style={styles.settingBlock}>
@@ -774,7 +801,7 @@ function SyncStatusCard({ cardStyle }: { cardStyle: (object | undefined)[] }) {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   container: {
     flex: 1,
     backgroundColor: palette.background,

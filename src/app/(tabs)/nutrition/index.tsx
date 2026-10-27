@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Modal, Pressable, ScrollView, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -23,7 +23,8 @@ import { macrosFor, summarizeNutritionLogs } from '@/lib/nutrition';
 import { useT } from '@/lib/i18n';
 import { getTodayDateString } from '@/lib/date';
 import { TextInput } from '@/components/text-input';
-import { BackButton } from '@/components/screen-header';
+import { BACK_WIDTH, BackButton } from '@/components/screen-header';
+import { softSheet } from '@/constants/soft-sheet';
 
 type NutritionLogRow = NonNullable<ReturnType<typeof useNutritionLogsForDate>['data']>[number];
 
@@ -166,11 +167,10 @@ export default function NutritionScreen({ date, onBack }: { date?: string; onBac
         )}
         <ScrollView ref={scrollRef} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={styles.pageHeading}>
+            <ThemedText style={[styles.eyebrow, onBack ? styles.eyebrowIndented : null]}>{todayLabel.toUpperCase()}</ThemedText>
+            <View style={styles.titleRow}>
             {onBack ? <BackButton onPress={onBack} /> : null}
-            <View style={styles.pageHeadingCopy}>
-              <ThemedText style={styles.eyebrow}>{todayLabel.toUpperCase()}</ThemedText>
-              <ThemedText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={styles.title}>{t('nutrition').toUpperCase()}</ThemedText>
-            </View>
+            <ThemedText numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6} style={styles.title}>{t('nutrition').toUpperCase()}</ThemedText>
             <View style={styles.headerActions}>
               <HeaderActionButton
                 label={t('share')}
@@ -178,6 +178,7 @@ export default function NutritionScreen({ date, onBack }: { date?: string; onBac
                 onPress={() => router.push({ pathname: '/nutrition/share', params: date ? { date } : {} })}
               />
               <HeaderActionButton label={t('plans')} accessibilityLabel="Nutrition plans" onPress={() => router.push('/nutrition/plans')} />
+            </View>
             </View>
           </View>
 
@@ -368,17 +369,19 @@ function cardShadowFor(palette: ReturnType<typeof useNutritionPalette>) {
 
 const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => {
   const cardShadow = cardShadowFor(palette);
-  return StyleSheet.create({
+  return softSheet({
   container: { flex: 1, backgroundColor: palette.background },
   safeArea: { flex: 1, paddingHorizontal: Spacing.three },
   content: { paddingBottom: Spacing.six, gap: Spacing.three },
   brandRow: { height: 42, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderBottomWidth: 1, borderColor: palette.border },
   brand: { color: palette.text, fontFamily: Fonts.metric, fontSize: 18, letterSpacing: 2 },
   area: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 8, letterSpacing: 1.2 },
-  pageHeading: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, paddingVertical: Spacing.three },
-  pageHeadingCopy: { flex: 1 },
+  // actions sit in the title's row so they center on the title line, not on eyebrow+title
+  pageHeading: { paddingVertical: Spacing.three },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   eyebrow: { color: palette.blue, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: 1 },
-  title: { color: palette.text, fontFamily: Fonts.metric, fontSize: 38, lineHeight: 42 },
+  eyebrowIndented: { marginLeft: BACK_WIDTH + Spacing.two },
+  title: { flex: 1, color: palette.text, fontFamily: Fonts.metric, fontSize: 38, lineHeight: 42 },
   headerActions: { flexDirection: 'row', gap: Spacing.two },
   summaryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.one },
   metricCard: { width: '48.9%', minHeight: 126, backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border, padding: 12, justifyContent: 'space-between', ...cardShadow },

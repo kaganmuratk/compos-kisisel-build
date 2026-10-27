@@ -1,7 +1,8 @@
-import { Platform, StyleSheet, View, type ViewProps } from 'react-native';
+import { Platform, View, type ViewProps } from 'react-native';
 
 import { ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Web content column cap — shared so anything computing pixel widths from
 // useWindowDimensions() (charts, the tab bar) can match what screens are
@@ -38,7 +39,7 @@ export function ThemedView({ style, lightColor, darkColor, type, ...otherProps }
   );
 }
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   webOuter: {
     flex: 1,
     alignItems: 'center',

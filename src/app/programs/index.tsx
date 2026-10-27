@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PaletteText as ThemedText, cardShadowFor, useNutritionPalette } from '@/components/nutrition-ui';
@@ -10,6 +10,7 @@ import { Fonts, Spacing } from '@/constants/theme';
 import { useDeleteProgram, usePrograms } from '@/db/queries/programs';
 import { SwipeableRow } from '@/components/swipeable-row';
 import { useT } from '@/lib/i18n';
+import { softSheet } from '@/constants/soft-sheet';
 
 export default function TrainingScreen() {
   const { t } = useT();
@@ -94,7 +95,7 @@ function ProgramsList() {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   page: { flex: 1, backgroundColor: palette.background },
   safeArea: { flex: 1, paddingHorizontal: Spacing.three },
   addButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border },

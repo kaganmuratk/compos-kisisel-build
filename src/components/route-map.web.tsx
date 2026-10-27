@@ -8,11 +8,12 @@
 // when there isn't (e.g. the tap-to-draw-a-route screen, which needs a real
 // map and has nothing useful to show here).
 import { forwardRef, useImperativeHandle } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 import Svg, { Polyline as SvgPolyline } from 'react-native-svg';
 
 import { ThemedText } from './themed-text';
 import type { RouteMapHandle, RouteMapProps } from './route-map.types';
+import { softSheet } from '@/constants/soft-sheet';
 
 const PREVIEW_SIZE = 280;
 const PADDING = 16;
@@ -75,7 +76,7 @@ function normalizeToSvgPoints(points: { lat: number; lng: number }[], allPoints:
     .join(' ');
 }
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   container: {
     alignItems: 'center',
     justifyContent: 'center',

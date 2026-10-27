@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_GOOGLE, type MapPressEvent } from 'react-native-maps';
 
 import type { RouteMapHandle, RouteMapProps } from './route-map.types';
+import { softSheet } from '@/constants/soft-sheet';
 
 export const RouteMap = forwardRef<RouteMapHandle, RouteMapProps>(function RouteMap(
   { initialRegion, showsUserLocation, markers, polylines, accentColor, onMapReady, onPress, style },
@@ -63,7 +64,7 @@ export const RouteMap = forwardRef<RouteMapHandle, RouteMapProps>(function Route
   );
 });
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   endpointDot: {
     width: 12,
     height: 12,

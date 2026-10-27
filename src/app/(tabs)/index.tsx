@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps } from 'react';
-import { Animated, Alert, AppState, Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Alert, AppState, Modal, Platform, Pressable, View } from 'react-native';
 import { KeyboardAwareScrollView, type KeyboardAwareScrollViewRef } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,8 +9,8 @@ import { SwipeableRow } from '@/components/swipeable-row';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { ThemedText as AppThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Fonts, Spacing } from '@/constants/theme';
-import { ChevronIcon, nutritionPalette, TrashIcon } from '@/components/nutrition-ui';
+import { Fonts, isSoftDesign, Spacing } from '@/constants/theme';
+import { ChevronIcon, nutritionPalette, nutritionPaletteLight, TrashIcon } from '@/components/nutrition-ui';
 import { useActiveCardioSession, useImportCardioSessionFromHealthConnect } from '@/db/queries/cardio';
 import {
   useAddCoffee,
@@ -62,6 +62,7 @@ import type { ActivityType } from '@/lib/activity-type';
 import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
 import { KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
+import { softSheet } from '@/constants/soft-sheet';
 
 const WATER_QUICK_ADD_ML = [200, 330, 500];
 const STRESS_LEVELS = Array.from({ length: 5 }, (_, i) => i + 1);
@@ -145,6 +146,7 @@ const todayThemeLight = {
   yellow: '#AE820A',
   sleepDeep: '#005FEB',
   sleepLight: '#5C92FF',
+  ...(isSoftDesign ? { background: nutritionPaletteLight.background, backgroundSelected: nutritionPaletteLight.raised, border: nutritionPaletteLight.border, accent: nutritionPaletteLight.blue } : {}),
 };
 
 type TodayTheme = typeof todayThemeDark;
@@ -512,14 +514,13 @@ export default function TodayScreen() {
   // ensureUncategorizedSupplementCategory for the one-time backfill that
   // turns the ORIGINAL uncategorized items into a real, renamable one).
   const uncategorizedSupplements = routineSupplements.filter((supplement) => supplement.categoryId == null);
-  // Same restrained accent-per-section language as the metric tiles above
-  // (colored left border only, label stays neutral) — cycles through the
-  // app's small fixed tone set so categories read as distinct at a glance
-  // without turning the list into a rainbow.
-  const categoryAccentPalette = [theme.accent, theme.mint, theme.coral, theme.violet];
+  // No per-category color stripe: the section's own orange stripe already
+  // frames the list, a second one inside read as noise (2026-10-27). A row
+  // created while the app was in English keeps its stored "Uncategorized"
+  // name, so it's shown localized.
   const supplementGroups = [
-    ...supplementCategories.map((category, index) => ({ id: category.id, label: category.name, isCustom: true, accentColor: categoryAccentPalette[index % categoryAccentPalette.length], supplements: routineSupplements.filter((supplement) => supplement.categoryId === category.id) })),
-    ...(uncategorizedSupplements.length > 0 ? [{ id: 'uncategorized', label: t('uncategorized'), isCustom: false, accentColor: theme.border, supplements: uncategorizedSupplements }] : []),
+    ...supplementCategories.map((category) => ({ id: category.id, label: category.name === 'Uncategorized' ? t('uncategorized') : category.name, isCustom: true, supplements: routineSupplements.filter((supplement) => supplement.categoryId === category.id) })),
+    ...(uncategorizedSupplements.length > 0 ? [{ id: 'uncategorized', label: t('uncategorized'), isCustom: false, supplements: uncategorizedSupplements }] : []),
   ];
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
   // Collapsed by default: with 5-10 supplements the full checklist took over
@@ -885,7 +886,7 @@ export default function TodayScreen() {
             {!supplementsOpen ? null : routineSupplements.length > 0 || supplementCategories.length > 0 ? (
               <View style={styles.supplementGroupList}>
                 {supplementGroups.map((group) => (
-                  <View key={group.id} style={[styles.supplementCategoryCard, { borderLeftColor: group.accentColor }]}>
+                  <View key={group.id} style={styles.supplementCategoryCard}>
                     <View style={styles.supplementCategoryHeader}>
                       {group.isCustom && editingCategoryId === group.id ? (
                         <TextInput
@@ -983,13 +984,13 @@ function MetricTile({
   );
   if (onPress) {
     return (
-      <Pressable accessibilityRole="button" accessibilityLabel={`Edit ${label.toLowerCase()}`} onPress={onPress} style={[styles.metricTile, { borderLeftColor: color }]}>
+      <Pressable accessibilityRole="button" accessibilityLabel={`Edit ${label.toLowerCase()}`} onPress={onPress} style={[styles.metricTile, { borderLeftColor: color }, isSoftDesign && { backgroundColor: withAlpha(color, 0.07) }]}>
         {content}
       </Pressable>
     );
   }
   return (
-    <View style={[styles.metricTile, { borderLeftColor: color }]}>
+    <View style={[styles.metricTile, { borderLeftColor: color }, isSoftDesign && { backgroundColor: withAlpha(color, 0.07) }]}>
       {content}
     </View>
   );
@@ -1030,7 +1031,7 @@ function MacroSummary({ label, value, color }: { label: string; value: string; c
   const theme = useTodayTheme();
   const styles = useTodayStyles(theme);
   return (
-    <View style={[styles.macroSummaryItem, { borderLeftColor: color }]}>
+    <View style={[styles.macroSummaryItem, { borderLeftColor: color }, isSoftDesign && { backgroundColor: withAlpha(color, 0.07) }]}>
       <ThemedText style={styles.macroSummaryLabel}>{label}</ThemedText>
       <ThemedText style={[styles.macroSummaryValue, { color }]}>{value}</ThemedText>
     </View>
@@ -1106,7 +1107,7 @@ function cardShadowFor(theme: TodayTheme) {
 
 const createStyles = (theme: TodayTheme) => {
   const cardShadow = cardShadowFor(theme);
-  return StyleSheet.create({
+  return softSheet({
   defaultText: {
     color: theme.text,
   },
@@ -1581,7 +1582,6 @@ const createStyles = (theme: TodayTheme) => {
     padding: Spacing.two,
     borderWidth: 1,
     borderColor: theme.border,
-    borderLeftWidth: 3,
     backgroundColor: theme.backgroundElement,
   },
   supplementCategoryHeader: {

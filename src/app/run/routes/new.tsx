@@ -13,6 +13,7 @@ import { useAddRunRoute } from '@/db/queries/routes';
 import { DirectionsError, fetchWalkingRoute, type LatLng } from '@/lib/directions';
 import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
+import { softSheet } from '@/constants/soft-sheet';
 
 function WebNotAvailable() {
   const palette = useNutritionPalette();
@@ -232,7 +233,7 @@ export default function NewRunRouteScreen() {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   container: {
     flex: 1,
     backgroundColor: palette.background,

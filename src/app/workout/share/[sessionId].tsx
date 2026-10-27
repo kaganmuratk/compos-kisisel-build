@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Pressable, useWindowDimensions, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 
 import { NutritionPage, PaletteText as ThemedText, TrashIcon, useNutritionPalette } from '@/components/nutrition-ui';
@@ -17,6 +17,7 @@ import { formatDuration } from '@/lib/geo';
 import { useT } from '@/lib/i18n';
 import { shareOrDownloadImage } from '@/lib/share-image';
 import { fromKg } from '@/lib/units';
+import { softSheet } from '@/constants/soft-sheet';
 
 export default function WorkoutShareScreen() {
   const { t } = useT();
@@ -182,7 +183,7 @@ export default function WorkoutShareScreen() {
 // swatchLight/swatchDark stay fixed white/near-black regardless of app
 // theme — they're the card's own text-theme picker (light text vs dark
 // text over the poster's background photo), not the app's light/dark mode.
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   modeRow: { flexDirection: 'row', borderWidth: 1, borderColor: palette.border, backgroundColor: palette.card, padding: 3, marginTop: Spacing.two },
   modeButton: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   modeButtonSelected: { backgroundColor: palette.blue },

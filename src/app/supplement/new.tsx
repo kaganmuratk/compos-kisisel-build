@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { nutritionPaletteLight, PaletteText as ThemedText, useNutritionPalette } from '@/components/nutrition-ui';
@@ -13,6 +13,7 @@ import { supplementCategories } from '@/db/schema';
 import { useAddSupplement, useAddSupplementLog } from '@/db/queries/supplements';
 import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Mirrors Today's/History's categoryAccentPalette exactly — same 4 tones in
 // the same order, so a category already reads as "its" color here too, not
@@ -138,7 +139,7 @@ export default function NewSupplementScreen() {const palette=useNutritionPalette
   );
 }
 
-const createStyles=(palette:ReturnType<typeof useNutritionPalette>)=>StyleSheet.create({
+const createStyles=(palette:ReturnType<typeof useNutritionPalette>)=>softSheet({
   page: { flex: 1, backgroundColor: palette.background },
   safeArea: { flex: 1, paddingHorizontal: Spacing.three },
   content: { flexGrow: 1, paddingVertical: Spacing.four, gap: Spacing.three },

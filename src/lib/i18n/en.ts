@@ -19,7 +19,7 @@ const en = {
   selectFood: 'Select a food', quickAdd: 'Quick add', newFood: 'New food', amount: 'Amount', grams: 'Grams', timeEaten: 'Time eaten', addFood: 'Add food', addEntry: 'Add entry', optionalName: 'Optional name', quickEntry: 'Quick entry', saveFood: 'Save food', valuesPer100g: 'Values are per 100 grams', foodName: 'Food name', categoryOptional: 'Category (optional)',
   close: 'Close', back: 'Back', delete: 'Delete', remove: 'Remove', save: 'Save', edit: 'Edit', reset: 'Reset', start: 'Start', name: 'Name', date: 'Date', latest: 'Latest', new: 'New', search: 'Search', loading: 'Loading…', optional: 'Optional', pending: 'Pending',
   accountLabel: 'Account', identity: 'Identity', yourAccess: 'Your access', signedInAs: 'Signed in as', confirmYourEmail: 'Confirm your email', checkYourInbox: 'Check your inbox', resetLinkSent: 'Reset link sent', backToSignIn: 'Back to sign in', setNewPassword: 'Set a new password', newPassword: 'New password', updatePassword: 'Update password', signOut: 'Sign out', requestAccountDeletion: 'Request account deletion',
-  appearance: 'Appearance', light: 'Light', smartwatch: 'Smartwatch', cloudMediaBackupLabel: 'Cloud media backup', backUpPhotosVideos: 'Back up photos & videos to cloud?', backUpToCloudLabel: 'Back up to cloud', noKeepOnDevice: 'No, keep on device',
+  appearance: 'Appearance', designStyle: 'Design', designSoft: 'New', designClassic: 'Classic', light: 'Light', smartwatch: 'Smartwatch', cloudMediaBackupLabel: 'Cloud media backup', backUpPhotosVideos: 'Back up photos & videos to cloud?', backUpToCloudLabel: 'Back up to cloud', noKeepOnDevice: 'No, keep on device',
   smartwatchNotAvailable: 'Direct watch integration isn\'t here yet.', connectWatch: 'Connect Watch', comingSoon: 'Coming soon', smartwatchComingSoonMessage: 'Direct watch connection isn\'t supported yet. We\'re working on this feature.',
   upToDate: 'Up to date', upToDateMessage: 'The running version is already the latest version.', updateDownloaded: 'Update Downloaded', updateDownloadedMessage: 'The app will now restart.', checkFailed: 'Check Failed', checkFailedMessage: 'Could not check for updates, please try again.',
   invalidDateRange: 'Invalid date range', invalidDateRangeMessage: 'Start date cannot be after end date.', exportDialogTitle: 'Export Compos data', exportFailed: 'Export Failed', exportFailedMessage: 'Could not export data, please try again.',
@@ -65,6 +65,7 @@ const en = {
   passwordRequirementsError: 'Password must be at least 8 characters and include an uppercase letter, a lowercase letter, and a number.', couldNotUpdatePassword: 'Could not update password, please try again.', emailRequired: 'Email is required.', emailAndPasswordRequired: 'Email and password are required.', couldNotSendResetLink: 'Could not send reset link, please try again.', couldNotSignIn: 'Could not sign in, please try again.',
   deleteAccountTitle: 'Delete account', deleteAccountConfirmMessage: 'This will prepare a request email to permanently delete your account and all its data. Continue?', proceed: 'Continue', sendResetLink: 'Send reset link',
   signInToContinue: 'Sign in to continue', createYourAccount: 'Create your account', resetYourPassword: 'Reset your password',
+  sortNewest: 'Newest', sortOldest: 'Oldest', sortHeaviest: 'Heaviest',
 } as const;
 
 export default en;

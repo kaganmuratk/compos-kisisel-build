@@ -16,6 +16,7 @@ import { appendAcceptedPoints, BACKGROUND_LOCATION_TASK, lastRawFix, reportRawFi
 import type { LatLng } from '@/lib/directions';
 import { formatDuration, formatPace, formatSpeed, totalDistance, totalElevationGain, type RoutePoint } from '@/lib/geo';
 import { useT } from '@/lib/i18n';
+import { softSheet } from '@/constants/soft-sheet';
 
 export default function LiveRunScreen() {
   const { t, language } = useT();
@@ -359,7 +360,7 @@ export default function LiveRunScreen() {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   container: {
     flex: 1,
     backgroundColor: palette.background,

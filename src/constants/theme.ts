@@ -5,6 +5,16 @@
 
 import { Platform } from 'react-native';
 
+import { readDesignVariant } from '@/constants/design-variant-storage';
+
+// Two looks, picked in Settings → Görünüm → Tasarım and applied on the next
+// app start: 'soft' (General Sans, rounded corners, softer surfaces — the
+// default since 2026-10-27) and 'classic' (the original condensed/mono,
+// square-cornered look, kept intact so it can be switched back to any time).
+export type DesignVariant = 'soft' | 'classic';
+export const designVariant: DesignVariant = readDesignVariant() === 'classic' ? 'classic' : 'soft';
+export const isSoftDesign = designVariant === 'soft';
+
 // Warm-neutral graphite + a single warm bronze/amber accent — see DESIGN.md for rationale.
 export const Colors = {
   light: {
@@ -17,6 +27,7 @@ export const Colors = {
     accent: '#8C5A21',
     accentOn: '#FFFFFF',
     destructive: '#DC2626',
+    ...(isSoftDesign ? { border: '#E8E5DE' } : {}),
   },
   dark: {
     text: '#F4F4F6',
@@ -28,13 +39,16 @@ export const Colors = {
     accent: '#E3AC6D',
     accentOn: '#241004',
     destructive: '#F87171',
+    ...(isSoftDesign ? { backgroundElement: '#17171E', backgroundSelected: '#1F1F28', border: '#24242E' } : {}),
   },
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
-// Single family (Inter), loaded via @expo-google-fonts/inter in the root layout.
-export const Fonts = {
+// Families are registered in the root layout's useFonts. The soft variant
+// registers General Sans under one alias per role (same file behind several
+// names) so softSheet() can still tell a metric number from a small label.
+const ClassicFonts = {
   regular: 'BricolageGrotesque_400Regular',
   medium: 'BricolageGrotesque_500Medium',
   semiBold: 'BricolageGrotesque_600SemiBold',
@@ -45,6 +59,20 @@ export const Fonts = {
   technicalBold: 'IBMPlexMono_700Bold',
   mono: Platform.select({ ios: 'ui-monospace', default: 'monospace' }),
 };
+
+const SoftFonts: typeof ClassicFonts = {
+  regular: 'GeneralSans_400Regular',
+  medium: 'GeneralSans_500Medium',
+  semiBold: 'GeneralSans_600SemiBold',
+  bold: 'GeneralSans_700Bold',
+  metric: 'GeneralSans_Metric',
+  metricMedium: 'GeneralSans_MetricMedium',
+  technical: 'GeneralSans_Label',
+  technicalBold: 'GeneralSans_LabelBold',
+  mono: ClassicFonts.mono,
+};
+
+export const Fonts = isSoftDesign ? SoftFonts : ClassicFonts;
 
 export const Spacing = {
   half: 2,

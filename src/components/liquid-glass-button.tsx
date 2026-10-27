@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, View, type StyleProp, type ViewStyle } from 'rea
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
 import { Radius } from '@/constants/theme';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Real native backdrop blur (BlurView — actually blurs whatever RN content
 // sits behind the button, unlike a CSS-style approximation) plus a slow
@@ -66,7 +67,7 @@ export function LiquidGlassButton({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   button: {
     borderRadius: Radius.full,
     overflow: 'hidden',

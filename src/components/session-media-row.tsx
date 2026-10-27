@@ -16,6 +16,7 @@ import { useAddSessionMedia, useRemoveSessionMedia, useSessionMedia } from '@/db
 import { useTheme } from '@/hooks/use-theme';
 import { alertMessage } from '@/lib/alert';
 import { pickMedia } from '@/lib/media';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Small horizontal strip for whole-session attachments (separate from
 // per-set media) — tap a thumbnail to view it fullscreen, "+" to add,
@@ -112,7 +113,7 @@ export function SessionMediaRow({ sessionId }: { sessionId: string }) {
   );
 }
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   // Without this, the horizontal ScrollView has no explicit size and
   // stretches to fill the leftover vertical space in its flex-column
   // parent — its 48px-tall thumbnail content ends up sitting inside a much

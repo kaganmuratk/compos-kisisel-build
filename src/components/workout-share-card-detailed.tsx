@@ -1,10 +1,11 @@
 import { forwardRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { nutritionPalette } from '@/components/nutrition-ui';
 import { POSTER_WIDTH, SharePosterCard, themeTextShadow } from '@/components/share-poster-card';
 import { Fonts } from '@/constants/theme';
 import { useT } from '@/lib/i18n';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Same fixed poster canvas as the summary card (workout-share-card.tsx) —
 // kept under the old name so workout/share/[sessionId].tsx's preview
@@ -65,7 +66,7 @@ export const WorkoutShareCardDetailed = forwardRef<View, WorkoutShareCardDetaile
   }
 );
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   eyebrow: {
     fontFamily: Fonts.technicalBold,
     fontSize: 32,

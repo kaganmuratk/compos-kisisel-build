@@ -1,12 +1,13 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import { NutritionPage, NutritionPrimaryButton, PaletteText as ThemedText, useNutritionPalette, useNutritionUi } from '@/components/nutrition-ui';
 import { Spacing } from '@/constants/theme';
 import { useAddNutritionPlan } from '@/db/queries/nutrition-plans';
 import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
+import { softSheet } from '@/constants/soft-sheet';
 
 export default function NewNutritionPlanScreen() {
   const nutritionUi = useNutritionUi();
@@ -32,4 +33,4 @@ export default function NewNutritionPlanScreen() {
     </NutritionPage>
   );
 }
-const createStyles = (_palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({ content: { gap: Spacing.three } });
+const createStyles = (_palette: ReturnType<typeof useNutritionPalette>) => softSheet({ content: { gap: Spacing.three } });

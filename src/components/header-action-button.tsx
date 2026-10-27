@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { Pressable } from 'react-native';
 
 import { useNutritionPalette } from '@/components/nutrition-ui';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Radius } from '@/constants/theme';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Shared pill button for header row actions (SHARE / DELETE / PLANS / …) —
 // history/day, history/workout, nutrition and run/summary each grew their
@@ -32,7 +33,7 @@ export function HeaderActionButton({
 }
 
 function cardShadowFor(palette: ReturnType<typeof useNutritionPalette>) { return palette.background === '#FAFAF8' ? { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 3, elevation: 2 } : {}; }
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   button: {
     ...cardShadowFor(palette),
     minWidth: 48,

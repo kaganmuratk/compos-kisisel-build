@@ -4,6 +4,7 @@ import { forwardRef, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Fonts } from '@/constants/theme';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Shared full-bleed "poster" shell for every share card (Nutrition today,
 // Workout/Run/Day-summary next) — replaces the old bordered dashboard-card
@@ -111,7 +112,7 @@ function withAlpha(hex: string, alpha: number): string {
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
 }
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   card: {
     width: POSTER_WIDTH,
     backgroundColor: '#000000',

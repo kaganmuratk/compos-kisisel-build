@@ -2,7 +2,7 @@ import { useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import * as Sharing from 'expo-sharing';
 import { useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Pressable, useWindowDimensions, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 
 import { DaySummaryShareCard, SHARE_CARD_HEIGHT, SHARE_CARD_WIDTH, type DaySummaryBlock } from '@/components/day-summary-share-card';
@@ -16,6 +16,7 @@ import { useNutritionLogsForDate } from '@/db/queries/nutrition';
 import { formatDayMonth, formatSleepDuration, sleepDurationHours } from '@/lib/date';
 import { formatDuration, formatPace } from '@/lib/geo';
 import { useT } from '@/lib/i18n';
+import { softSheet } from '@/constants/soft-sheet';
 
 type SectionKey = 'workout' | 'run' | 'nutrition' | 'health' | 'drinks' | 'supplements';
 type T = ReturnType<typeof useT>['t'];
@@ -349,7 +350,7 @@ export default function DayShareScreen() {
 // swatchLight/swatchDark stay fixed white/near-black regardless of app
 // theme — they're the card's own text-theme picker (light text vs dark
 // text over the poster's background photo), not the app's light/dark mode.
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   modeRow: { flexDirection: 'row', borderWidth: 1, borderColor: palette.border, backgroundColor: palette.card, padding: 3, marginTop: Spacing.two },
   modeButton: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
   modeButtonSelected: { backgroundColor: palette.yellow },

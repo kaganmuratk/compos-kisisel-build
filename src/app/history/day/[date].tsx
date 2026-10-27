@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState, type ComponentProps } from 'react';
-import { Alert, Modal, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Modal, Platform, Pressable, ScrollView, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
@@ -37,6 +37,7 @@ import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
 import { BackButton } from '@/components/screen-header';
 import { KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
+import { softSheet } from '@/constants/soft-sheet';
 
 const STRESS_LEVELS = Array.from({ length: 5 }, (_, i) => i + 1);
 const DAY_NOTE_STANDARD_HEIGHT = 132;
@@ -1002,7 +1003,7 @@ function SnapshotMetric({ value, label, tone }: { value: string; label: string; 
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   container: {
     flex: 1,
     backgroundColor: palette.background,

@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { View } from 'react-native';
 
 import { useNutritionPalette } from '@/components/nutrition-ui';
 import { ThemedText } from '@/components/themed-text';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useT } from '@/lib/i18n';
 import { macrosFor, round, type MacroSource } from '@/lib/nutrition';
+import { softSheet } from '@/constants/soft-sheet';
 
 export function FoodMacroDetail({ food, amountGrams }: { food: MacroSource & { extraNutrients?: string | null }; amountGrams: number }) {
   const { t } = useT();
@@ -45,7 +46,7 @@ function MacroBlock({ styles, label, value, color }: { styles: ReturnType<typeof
 }
 
 function cardShadowFor(palette: ReturnType<typeof useNutritionPalette>) { return palette.background === '#FAFAF8' ? { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 3, elevation: 2 } : {}; }
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   wrapper: { gap: Spacing.two },
   macroRow: { ...cardShadowFor(palette), flexDirection: 'row', backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border, paddingVertical: Spacing.three },
   macroBlock: { flex: 1, alignItems: 'center', gap: 2 },

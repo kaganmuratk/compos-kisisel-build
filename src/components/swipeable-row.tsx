@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Alert, Platform, StyleSheet, View } from 'react-native';
+import { Alert, Platform, View } from 'react-native';
 // The revealed action is nested in RNGH's ReanimatedSwipeable. Use RNGH's
 // Pressable too: on Android, a plain React Native Pressable can lose the
 // touch to the translated row underneath and trigger that row's navigation.
@@ -8,6 +8,7 @@ import Swipeable, { type SwipeableMethods } from 'react-native-gesture-handler/R
 import Svg, { Line, Path } from 'react-native-svg';
 
 import { useTheme } from '@/hooks/use-theme';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Swipe-left-to-reveal-delete for a list row. Reuses the same
 // Alert.alert(title, message, [cancel, destructive]) confirmation shape
@@ -140,7 +141,7 @@ export function SwipeableRow({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   action: {
     width: 64,
     alignItems: 'center',

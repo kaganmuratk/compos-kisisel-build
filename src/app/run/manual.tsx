@@ -17,6 +17,7 @@ import { useT } from '@/lib/i18n';
 import { PlacesError, searchPlaces, getPlaceLocation, type PlaceSuggestion } from '@/lib/places';
 import { TextInput } from '@/components/text-input';
 import { KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
+import { softSheet } from '@/constants/soft-sheet';
 
 type PickedPlace = LatLng & { text: string };
 
@@ -408,7 +409,7 @@ function PlaceSearchInput({
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   container: {
     flex: 1,
     backgroundColor: palette.background,

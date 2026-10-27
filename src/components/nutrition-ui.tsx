@@ -7,9 +7,10 @@ import Svg, { Path } from 'react-native-svg';
 
 import { ThemedText, type ThemedTextProps } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { Fonts, Spacing } from '@/constants/theme';
+import { Fonts, isSoftDesign, Spacing } from '@/constants/theme';
 import { useSettings } from '@/db/queries/settings';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { softSheet } from '@/constants/soft-sheet';
 
 export const nutritionPaletteDark = {
   background: '#0E0E12',
@@ -22,6 +23,9 @@ export const nutritionPaletteDark = {
   green: '#2DD4A0',
   red: '#FF625C',
   yellow: '#F5C84C',
+  // Soft design: surfaces a half-step lifter, the hairline quieter (rounded
+  // cards read as separate without it) and the blue a touch calmer.
+  ...(isSoftDesign ? { card: '#17171E', raised: '#1F1F28', border: '#24242E', blue: '#5B9BFF' } : {}),
 };
 
 // Every value here is nutritionPaletteDark's own hue/saturation with only
@@ -53,6 +57,7 @@ export const nutritionPaletteLight = {
   green: '#1D906C',
   red: '#F50900',
   yellow: '#AE820A',
+  ...(isSoftDesign ? { background: '#F2F1EE', raised: '#F7F6F3', border: '#E8E5DE', blue: '#1F66E5' } : {}),
 };
 
 // Back-compat default for screens not yet migrated to useNutritionPalette()
@@ -255,7 +260,7 @@ function useSharedUiStyles() {
 
 const createNutritionUi = (palette: ReturnType<typeof useNutritionPalette>) => {
   const cardShadow = cardShadowFor(palette);
-  return StyleSheet.create({
+  return softSheet({
     card: {
       ...cardShadow,
       backgroundColor: palette.card,
@@ -309,7 +314,7 @@ const createNutritionUi = (palette: ReturnType<typeof useNutritionPalette>) => {
 };
 
 const createUi = (palette: ReturnType<typeof useNutritionPalette>) =>
-  StyleSheet.create({
+  softSheet({
     page: { flex: 1, backgroundColor: palette.background },
     safeArea: { flex: 1, paddingHorizontal: Spacing.three, paddingTop: Spacing.two },
     header: { minHeight: 64, flexDirection: 'row', alignItems: 'center', borderTopWidth: 1, borderBottomWidth: 1, borderColor: palette.border, gap: Spacing.two },

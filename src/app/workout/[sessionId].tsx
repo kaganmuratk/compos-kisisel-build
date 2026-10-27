@@ -33,6 +33,7 @@ import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
 import { KeyboardDoneBar } from '@/components/keyboard-done-bar';
 import { BackButton } from '@/components/screen-header';
+import { softSheet } from '@/constants/soft-sheet';
 
 // The NOTE/MEDIA quick actions' own fixed hues — same amber/purple the
 // History recap screen's DETAILS sheet uses for its NOTE/MEDIA sections,
@@ -455,7 +456,7 @@ function ExerciseBlock({
 
 // fs: capped OS text-size factor (useFontScale) — the table's fixed column
 // widths hold text, so they grow with it.
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>, fs: number) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>, fs: number) => softSheet({
   container: {
     flex: 1,
     backgroundColor: palette.background,

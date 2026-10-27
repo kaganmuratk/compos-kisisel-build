@@ -1,10 +1,11 @@
 import { forwardRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { nutritionPalette } from '@/components/nutrition-ui';
 import { POSTER_HEIGHT, POSTER_WIDTH, SharePosterCard, themeTextShadow } from '@/components/share-poster-card';
 import { Fonts } from '@/constants/theme';
 import { useT } from '@/lib/i18n';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Full-bleed export size — matches SharePosterCard's fixed poster canvas
 // (kept exported under the old names so nutrition/share.tsx's captureRef
@@ -67,7 +68,7 @@ function Macro({ value, label, textTheme = 'light' }: { value: number; label: st
   );
 }
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   eyebrow: {
     fontFamily: Fonts.technicalBold,
     fontSize: 40,

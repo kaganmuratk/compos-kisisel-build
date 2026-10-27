@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, Platform, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PaletteText as ThemedText, useNutritionPalette } from '@/components/nutrition-ui';
@@ -14,6 +14,7 @@ import { friendlyErrorMessage } from '@/lib/errors';
 import { supabase } from '@/lib/supabase';
 import { useT, type AppLanguage } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
+import { softSheet } from '@/constants/soft-sheet';
 
 const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 // A full self-service delete needs a service_role-privileged Supabase Edge
@@ -253,7 +254,7 @@ function AuthForm() {const palette=useNutritionPalette();const styles=useMemo(()
   );
 }
 
-const createStyles=(palette:ReturnType<typeof useNutritionPalette>)=>StyleSheet.create({
+const createStyles=(palette:ReturnType<typeof useNutritionPalette>)=>softSheet({
   page: { flex: 1, backgroundColor: palette.background },
   safeArea: { flex: 1, paddingHorizontal: Spacing.three },
   loading: { marginTop: Spacing.six },

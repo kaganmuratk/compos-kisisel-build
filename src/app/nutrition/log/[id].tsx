@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { Alert, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Platform, ScrollView, View } from 'react-native';
 
 import { FoodMacroDetail } from '@/components/food-macro-detail';
 import { NutritionEmpty, NutritionPage, NutritionTextButton, useNutritionPalette, useNutritionUi } from '@/components/nutrition-ui';
@@ -9,6 +9,7 @@ import { Fonts, Spacing } from '@/constants/theme';
 import { useNutritionLog, useRemoveNutritionLog, useUpdateNutritionLog } from '@/db/queries/nutrition';
 import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
+import { softSheet } from '@/constants/soft-sheet';
 
 export default function NutritionLogDetailScreen() {
   const { t } = useT();
@@ -67,7 +68,7 @@ export default function NutritionLogDetailScreen() {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   content: { gap: Spacing.three, paddingBottom: Spacing.six },
   amountRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   amountInput: { width: 110, textAlign: 'center', fontFamily: Fonts.metric, fontSize: 25 },

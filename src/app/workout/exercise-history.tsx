@@ -11,6 +11,7 @@ import { useSettings } from '@/db/queries/settings';
 import { formatShortDate } from '@/lib/date';
 import { useT } from '@/lib/i18n';
 import { fromKg } from '@/lib/units';
+import { softSheet } from '@/constants/soft-sheet';
 
 export default function ExerciseHistoryModal() {
   const { t } = useT();
@@ -116,7 +117,7 @@ export default function ExerciseHistoryModal() {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   container: {
     flex: 1,
     backgroundColor: palette.background,

@@ -10,7 +10,7 @@ import { getExerciseCategoryColor, SetRow } from '@/components/set-row';
 import { PaletteText as ThemedText, useNutritionPalette } from '@/components/nutrition-ui';
 import { ThemedView } from '@/components/themed-view';
 import { TimeSeriesChart } from '@/components/time-series-chart';
-import { Fonts, Spacing } from '@/constants/theme';
+import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useCheckinHistory } from '@/db/queries/daily';
 import {
   useAddHistoricalSet,
@@ -22,7 +22,7 @@ import {
 } from '@/db/queries/exercises';
 import { useSettings } from '@/db/queries/settings';
 import { alertMessage } from '@/lib/alert';
-import { formatDayMonth as formatDate, formatShortDate } from '@/lib/date';
+import { addDaysToDateString, formatDayMonth as formatDate, formatShortDate, getTodayDateString } from '@/lib/date';
 import { persistPickedAsset } from '@/lib/media';
 import { estimatedOneRepMax, nearestBodyweightKg } from '@/lib/strength';
 import { fromKg } from '@/lib/units';
@@ -30,8 +30,17 @@ import { getExerciseCategoryLabel } from '@/lib/exercise-category';
 import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
 import { BackButton } from '@/components/screen-header';
+import { softSheet } from '@/constants/soft-sheet';
 
 type AppTheme = { text: string; textSecondary: string; backgroundElement: string; border: string; accent: string; accentOn: string };
+
+// Range applies to both the charts and the per-session list below them; the
+// header stats stay all-time. Wider than the 7/30/90 of the daily-data
+// analysis screens since an exercise is logged about once a week.
+const ranges = [30, 90, 180, null] as const;
+const sortOrders = ['newest', 'oldest', 'heaviest'] as const;
+type SortOrder = (typeof sortOrders)[number];
+const sortLabelKeys = { newest: 'sortNewest', oldest: 'sortOldest', heaviest: 'sortHeaviest' } as const;
 
 export default function ExerciseDetailScreen() {
   const palette = useNutritionPalette();
@@ -51,6 +60,8 @@ export default function ExerciseDetailScreen() {
   const addSet = useAddHistoricalSet(exerciseId);
 
   const [editingName, setEditingName] = useState(false);
+  const [range, setRange] = useState<number | null>(null);
+  const [sortOrder, setSortOrder] = useState<SortOrder>('newest');
   const [nameValue, setNameValue] = useState(exercise?.name ?? '');
 
   useEffect(() => {
@@ -118,8 +129,10 @@ export default function ExerciseDetailScreen() {
   // Some sessions logged this exercise split by hand (sağ el/sol el) and
   // others didn't — an unsplit set counts toward both sides, so a day
   // without a split still contributes a data point to each hand's line.
-  const buildChartData = (sideFilter?: 'left' | 'right') =>
-    sessions
+  const rangeStart = range == null ? null : addDaysToDateString(getTodayDateString(), -(range - 1));
+  const rangeSessions = rangeStart == null ? sessions : sessions.filter((session) => session.date >= rangeStart);
+  const buildChartData = (sideFilter?: 'left' | 'right', from = rangeSessions) =>
+    from
       .map((session) => {
         const relevantSets = sideFilter
           ? session.sets.filter((s) => s.side == null || s.side === sideFilter)
@@ -147,8 +160,8 @@ export default function ExerciseDetailScreen() {
   // RIR should score higher than a lower pin/fewer reps set, same as it does
   // for real weight), so it reuses buildChartData rather than just plotting
   // the raw max pin number (which would ignore reps/RIR entirely).
-  const buildPinChartData = () =>
-    sessions
+  const buildPinChartData = (from = rangeSessions) =>
+    from
       .map((session) => {
         const scores = session.sets
           .filter((s) => s.weight != null && s.reps != null)
@@ -166,6 +179,12 @@ export default function ExerciseDetailScreen() {
   const chartData = exercise.weightMode === 'pin' ? [] : buildChartData(hasUnilateralData ? 'right' : undefined);
   const leftChartData = hasUnilateralData ? buildChartData('left') : [];
   const pinChartData = exercise.weightMode === 'pin' ? buildPinChartData() : [];
+  // Header "best" is all-time, independent of the selected range.
+  const allTimeBest = exercise.weightMode === 'pin' ? buildPinChartData(sessions) : buildChartData(hasUnilateralData ? 'right' : undefined, sessions);
+  const heaviest = (session: (typeof sessions)[number]) => Math.max(0, ...session.sets.map((set) => set.weight ?? 0));
+  const listedSessions = sortOrder === 'oldest' ? rangeSessions
+    : sortOrder === 'heaviest' ? [...rangeSessions].sort((a, b) => heaviest(b) - heaviest(a) || b.date.localeCompare(a.date))
+    : [...rangeSessions].reverse();
 
   return (
     <ThemedView lightColor={palette.background} darkColor={palette.background} style={styles.container}>
@@ -199,7 +218,7 @@ export default function ExerciseDetailScreen() {
                 />
               ) : (
                 <Pressable onPress={() => setEditingName(true)} hitSlop={4}>
-                  <ThemedText type="title">{exercise.name}</ThemedText>
+                  <ThemedText type="subtitle" numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.75}>{exercise.name}</ThemedText>
                 </Pressable>
               )}
               <ThemedText themeColor="textSecondary" type="small">
@@ -207,7 +226,7 @@ export default function ExerciseDetailScreen() {
               </ThemedText>
             </View>
           </View>
-          <View style={styles.recordStrip}><View style={styles.recordItem}><ThemedText style={styles.recordValue}>{sessions.length}</ThemedText><ThemedText style={styles.recordLabel}>{t('workouts').toUpperCase()}</ThemedText></View><View style={styles.recordItem}><ThemedText style={styles.recordValue}>{history.length}</ThemedText><ThemedText style={styles.recordLabel}>{t('setsLogged').toUpperCase()}</ThemedText></View><View style={styles.recordItem}><ThemedText style={styles.recordValue}>{exercise.weightMode === 'pin' ? (pinChartData.length ? Math.max(...pinChartData.map((point) => point.value)).toFixed(1) : '—') : (chartData.length ? Math.max(...chartData.map((point) => point.value)).toFixed(1) : '—')}</ThemedText><ThemedText style={styles.recordLabel}>{(exercise.weightMode === 'pin' ? t('bestPinScore') : t('bestEstimatedOneRm')).toUpperCase()}</ThemedText></View></View>
+          <View style={styles.recordStrip}><View style={styles.recordItem}><ThemedText style={styles.recordValue}>{sessions.length}</ThemedText><ThemedText style={styles.recordLabel}>{t('workouts').toUpperCase()}</ThemedText></View><View style={styles.recordItem}><ThemedText style={styles.recordValue}>{history.length}</ThemedText><ThemedText style={styles.recordLabel}>{t('setsLogged').toUpperCase()}</ThemedText></View><View style={styles.recordItem}><ThemedText style={styles.recordValue}>{allTimeBest.length ? Math.max(...allTimeBest.map((point) => point.value)).toFixed(1) : '—'}</ThemedText><ThemedText style={styles.recordLabel}>{(exercise.weightMode === 'pin' ? t('bestPinScore') : t('bestEstimatedOneRm')).toUpperCase()}</ThemedText></View></View>
 
           {sessions.length === 0 ? (
             <View style={styles.emptyState}>
@@ -217,6 +236,13 @@ export default function ExerciseDetailScreen() {
             </View>
           ) : (
             <>
+              <View style={styles.chips}>
+                {ranges.map((item) => (
+                  <Pressable key={String(item)} onPress={() => setRange(item)} style={[styles.chip, range === item && styles.chipSelected]}>
+                    <ThemedText style={[styles.chipText, range === item && styles.chipTextSelected]}>{item == null ? t('all').toUpperCase() : `${item}${t('daysAbbrev')}`}</ThemedText>
+                  </Pressable>
+                ))}
+              </View>
               {exercise.weightMode === 'pin' ? (
                 // A pin/notch count isn't a real weight, so the Epley-based
                 // estimated 1RM formula doesn't apply — chart the highest
@@ -250,7 +276,14 @@ export default function ExerciseDetailScreen() {
               )}
 
               <View style={styles.historyList}>
-                {[...sessions].reverse().map((session) => (
+                <View style={styles.chips}>
+                  {sortOrders.map((item) => (
+                    <Pressable key={item} onPress={() => setSortOrder(item)} style={[styles.chip, sortOrder === item && styles.chipSelected]}>
+                      <ThemedText style={[styles.chipText, sortOrder === item && styles.chipTextSelected]}>{t(sortLabelKeys[item]).toUpperCase()}</ThemedText>
+                    </Pressable>
+                  ))}
+                </View>
+                {listedSessions.map((session) => (
                   <View
                     key={session.sessionId}
                     style={[styles.card, { borderLeftColor: accentColor }]}>
@@ -331,7 +364,7 @@ function OneRepMaxChart({
   return <TimeSeriesChart title={title} unit={unit} data={chartData} kind="oneRepMax" color={theme.accent} surfaceColor={theme.backgroundElement} borderColor={theme.border} />;
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   container: {
     flex: 1,
   },
@@ -341,7 +374,7 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
     paddingTop: Spacing.three,
   },
   titleInput: {
-    fontSize: 32,
+    fontSize: 22,
     fontFamily: Fonts.semiBold,
     letterSpacing: -0.5,
     borderBottomWidth: StyleSheet.hairlineWidth,
@@ -372,6 +405,12 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleS
     justifyContent: 'center',
     overflow: 'hidden',
   },
+  // Same chip look as the nutrition analysis range selector.
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.one },
+  chip: { paddingHorizontal: Spacing.two, paddingVertical: Spacing.one, borderWidth: StyleSheet.hairlineWidth, borderColor: palette.border, borderRadius: Radius.sm },
+  chipSelected: { backgroundColor: palette.blue },
+  chipText: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 8 },
+  chipTextSelected: { color: palette.background },
   thumbnailImage: {
     width: '100%',
     height: '100%',

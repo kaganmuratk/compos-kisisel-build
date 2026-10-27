@@ -13,6 +13,7 @@ import { pickMedia } from '@/lib/media';
 import { fromKg, toKg, type WeightUnit } from '@/lib/units';
 import { TextInput } from '@/components/text-input';
 import { KeyboardDoneBar } from '@/components/keyboard-done-bar';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Sized to the digits each box actually holds (IBM Plex Mono ≈ 0.6em per
 // digit + 10px padding): reps up to 3 digits at 18px, RIR/RPE up to 3
@@ -385,7 +386,7 @@ function SetActions({
 // `fs` is the capped OS text-size factor (useFontScale): every fixed width
 // below holds text, so it grows with it — at a fixed width a larger text
 // setting pushed the reps digits under the RIR label (2026-10-20 report).
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>, fs: number) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>, fs: number) => softSheet({
   setRow: {
     width: '100%',
     minWidth: 0,
@@ -469,7 +470,7 @@ const createStyles = (palette: ReturnType<typeof useNutritionPalette>, fs: numbe
 // rowScale: the OS text-size factor, capped to what fits the measured row
 // (see WORKOUT_ROW_BASE_WIDTH). The row's Text/TextInputs set
 // allowFontScaling={false}, since the OS factor is already inside `s`.
-const createWorkoutRowStyles = (palette: ReturnType<typeof useNutritionPalette>, s: number) => StyleSheet.create({
+const createWorkoutRowStyles = (palette: ReturnType<typeof useNutritionPalette>, s: number) => softSheet({
   setNumberColumn: { width: 32 * s },
   setNumber: { fontSize: 14 * s, lineHeight: 18 * s },
   // Explicit `gap` on each level (not fixed-width boxes) keeps the spacing

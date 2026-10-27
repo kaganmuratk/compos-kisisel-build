@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -15,6 +15,7 @@ import { addDaysToDateString, formatDayMonth, getTodayDateString } from '@/lib/d
 import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
 import { KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
+import { softSheet } from '@/constants/soft-sheet';
 
 export default function AddManualWorkoutScreen() {
   const { t } = useT();
@@ -36,4 +37,4 @@ export default function AddManualWorkoutScreen() {
   </SafeAreaView></ThemedView>;
 }
 function cardShadowFor(palette: ReturnType<typeof useNutritionPalette>) { return palette.background === '#FAFAF8' ? { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 3, elevation: 2 } : {}; }
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({ page: { flex: 1, backgroundColor: palette.background }, safeArea: { flex: 1, paddingHorizontal: Spacing.three }, content: { flexGrow: 1, gap: Spacing.three, paddingVertical: Spacing.four }, fieldCard: { ...cardShadowFor(palette), backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border, padding: Spacing.three, gap: Spacing.two }, label: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: 1 }, dateRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, step: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: palette.border, backgroundColor: palette.raised }, stepText: { color: palette.blue, fontFamily: Fonts.technical, fontSize: 18 }, dateValue: { color: palette.text, fontFamily: Fonts.metric, fontSize: 22 }, input: { color: palette.text, fontFamily: Fonts.regular, fontSize: 16, borderBottomWidth: 1, borderColor: palette.border, paddingVertical: Spacing.one }, noteInput: { minHeight: 80, textAlignVertical: 'top' }, save: { minHeight: 52, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.blue, marginBottom: Spacing.three }, saveText: { color: palette.background, fontFamily: Fonts.bold, fontSize: 13, letterSpacing: 0.6 }, disabled: { opacity: 0.45 } });
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({ page: { flex: 1, backgroundColor: palette.background }, safeArea: { flex: 1, paddingHorizontal: Spacing.three }, content: { flexGrow: 1, gap: Spacing.three, paddingVertical: Spacing.four }, fieldCard: { ...cardShadowFor(palette), backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border, padding: Spacing.three, gap: Spacing.two }, label: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: 1 }, dateRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, step: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: palette.border, backgroundColor: palette.raised }, stepText: { color: palette.blue, fontFamily: Fonts.technical, fontSize: 18 }, dateValue: { color: palette.text, fontFamily: Fonts.metric, fontSize: 22 }, input: { color: palette.text, fontFamily: Fonts.regular, fontSize: 16, borderBottomWidth: 1, borderColor: palette.border, paddingVertical: Spacing.one }, noteInput: { minHeight: 80, textAlignVertical: 'top' }, save: { minHeight: 52, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.blue, marginBottom: Spacing.three }, saveText: { color: palette.background, fontFamily: Fonts.bold, fontSize: 13, letterSpacing: 0.6 }, disabled: { opacity: 0.45 } });

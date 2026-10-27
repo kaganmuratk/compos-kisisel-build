@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 
@@ -17,6 +17,7 @@ import { formatDayMonth } from '@/lib/date';
 import type { RoutePoint } from '@/lib/geo';
 import { useT } from '@/lib/i18n';
 import { shareOrDownloadImage } from '@/lib/share-image';
+import { softSheet } from '@/constants/soft-sheet';
 
 export default function RunShareScreen() {
   const { t } = useT();
@@ -34,4 +35,4 @@ export default function RunShareScreen() {
     <Pressable onPress={share} disabled={sharing} style={[styles.shareButton, sharing && styles.disabled]}>{sharing ? <ActivityIndicator color={palette.background} /> : <ThemedText style={styles.shareText}>{t('shareImage').toUpperCase()}</ThemedText>}</Pressable>
   </SafeAreaView></ThemedView>;
 }
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({ page: { flex: 1, backgroundColor: palette.background }, safeArea: { flex: 1, paddingHorizontal: Spacing.three, gap: Spacing.three }, actions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one }, photoButton: { minHeight: 30, justifyContent: 'center', paddingHorizontal: Spacing.two, backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border }, photoText: { color: palette.text, fontFamily: Fonts.technical, fontSize: 8, letterSpacing: 0.5 }, remove: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 22 }, cardWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center' }, scroll: { flex: 1 }, detailed: { alignItems: 'center', paddingVertical: Spacing.three }, shareButton: { minHeight: 52, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.three, backgroundColor: palette.green }, shareText: { color: palette.background, fontFamily: Fonts.bold, fontSize: 13, letterSpacing: 0.7 }, disabled: { opacity: 0.6 } });
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({ page: { flex: 1, backgroundColor: palette.background }, safeArea: { flex: 1, paddingHorizontal: Spacing.three, gap: Spacing.three }, actions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.one }, photoButton: { minHeight: 30, justifyContent: 'center', paddingHorizontal: Spacing.two, backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border }, photoText: { color: palette.text, fontFamily: Fonts.technical, fontSize: 8, letterSpacing: 0.5 }, remove: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 22 }, cardWrapper: { flex: 1, alignItems: 'center', justifyContent: 'center' }, scroll: { flex: 1 }, detailed: { alignItems: 'center', paddingVertical: Spacing.three }, shareButton: { minHeight: 52, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.three, backgroundColor: palette.green }, shareText: { color: palette.background, fontFamily: Fonts.bold, fontSize: 13, letterSpacing: 0.7 }, disabled: { opacity: 0.6 } });

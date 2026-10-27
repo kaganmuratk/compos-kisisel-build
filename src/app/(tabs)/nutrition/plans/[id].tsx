@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useRef, type ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,6 +15,7 @@ import { useApplyPlan, useNutritionPlan, usePlanMeals, useRemoveMealFromPlan, us
 import { macrosFor } from '@/lib/nutrition';
 import { getFoodNameLabel } from '@/lib/food-name';
 import { useT } from '@/lib/i18n';
+import { softSheet } from '@/constants/soft-sheet';
 
 type PlanMealRow = ReturnType<typeof usePlanMeals>['data'] extends (infer T)[] | undefined ? T : never;
 
@@ -229,7 +230,7 @@ function MetricCard({ label, value, color }: { label: string; value: string; col
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   page: { flex: 1, backgroundColor: palette.background },
   safeArea: { flex: 1, paddingHorizontal: Spacing.three },
   content: { paddingBottom: Spacing.six, gap: Spacing.three },

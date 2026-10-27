@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { useNutritionPalette } from '@/components/nutrition-ui';
 import { Fonts, Radius, Spacing } from '@/constants/theme';
 import { useFontScale } from '@/hooks/use-font-scale';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Shared tap/press tooltip for every LineChart in the app (react-native-
 // gifted-charts' own `pointerConfig`) — Kağan asked for this on "tüm
@@ -55,7 +56,6 @@ export function useChartPointerConfig({
   const styles = useMemo(() => createStyles(palette, tooltipScale), [palette, tooltipScale]);
   const pointerLabelWidth = (seriesLabels ? 132 : 76) * tooltipScale;
   return {
-    showPointerStrip: false,
     pointerColor: resolvedPointerColor,
     // Without this, the second series' pointer dot silently falls back to
     // `pointerColor` (the first series' color) too — on a two-line chart
@@ -112,7 +112,19 @@ export function useChartPointerConfig({
     pointerEvents: 'box-none' as const,
     activatePointersInstantlyOnTouch: true,
     autoAdjustPointerLabelPosition: true,
-    pointerVanishDelay: 2500,
+    // The card stays until another point is picked. gifted-charts starts a
+    // fresh hide timer on every release without clearing the previous one,
+    // so with a vanish delay a quick second tap got hidden early by the
+    // first tap's timer ("hızlı kapanıyor", 2026-10-27). Dragging a finger
+    // along the chart moves the card point to point, which is the way to
+    // read a dense series whose dots are too small to hit one by one.
+    persistPointer: true,
+    // A thin guide line under the finger shows which column is picked
+    // (the highlight dot itself stays hidden, see hidePointers above).
+    showPointerStrip: true,
+    pointerStripWidth: 1,
+    pointerStripColor: palette.muted,
+    pointerStripUptoDataPoint: true,
     pointerLabelComponent: (items: { value: number; label?: string; originalLabel?: string; dateKey?: string }[]) => {
       const item = items[0];
       if (!item) return null;
@@ -173,7 +185,7 @@ export function useChartPointerConfig({
 }
 
 // `ts`: the tooltip's own text scale (see tooltipScale above).
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>, ts: number) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>, ts: number) => softSheet({
   bubble: {
     borderRadius: Radius.md,
     borderWidth: StyleSheet.hairlineWidth,

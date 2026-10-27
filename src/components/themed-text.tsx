@@ -1,7 +1,8 @@
-import { Platform, StyleSheet, Text, type TextProps } from 'react-native';
+import { Platform, Text, type TextProps } from 'react-native';
 
 import { Fonts, MAX_FONT_SCALE, ThemeColor } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { softSheet } from '@/constants/soft-sheet';
 
 export type ThemedTextProps = TextProps & {
   type?: 'default' | 'title' | 'small' | 'smallBold' | 'subtitle' | 'link' | 'linkPrimary' | 'code';
@@ -31,7 +32,7 @@ export function ThemedText({ style, type = 'default', themeColor, ...rest }: The
   );
 }
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   small: {
     fontSize: 14,
     lineHeight: 20,

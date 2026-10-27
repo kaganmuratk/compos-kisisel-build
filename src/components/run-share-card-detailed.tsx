@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Colors, Fonts, Radius, Spacing } from '@/constants/theme';
 import { formatDuration, formatPace } from '@/lib/geo';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Same sizing/capture reasoning as nutrition-share-card-detailed.tsx — fixed
 // width, no fixed height. Text-only on purpose: the summary card
@@ -158,7 +159,7 @@ export const RunShareCardDetailed = forwardRef<View, RunShareCardDetailedProps>(
   );
 });
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   card: {
     width: SHARE_CARD_WIDTH,
     borderRadius: Radius.xl,

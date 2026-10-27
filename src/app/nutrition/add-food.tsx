@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, View } from 'react-native';
 
 import { FoodMacroDetail } from '@/components/food-macro-detail';
 import { NutritionEmpty, NutritionPage, NutritionPrimaryButton, NutritionTextButton, useNutritionPalette, useNutritionUi } from '@/components/nutrition-ui';
@@ -15,6 +15,7 @@ import { getFoodNameLabel } from '@/lib/food-name';
 import { caloriesFromMacros, parsePortions } from '@/lib/nutrition';
 import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
+import { softSheet } from '@/constants/soft-sheet';
 
 const defaultMealTime: Record<string, string> = { breakfast: '08:00', lunch: '13:00', dinner: '19:00', snack: '16:00' };
 const currentTimeString = () => { const now = new Date(); return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`; };
@@ -140,7 +141,7 @@ export default function AddFoodScreen() {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   foodList: { paddingTop: Spacing.three },
   listLabel: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 9, letterSpacing: 1, marginBottom: Spacing.one },
   detailContent: { gap: Spacing.three, paddingBottom: Spacing.four },

@@ -1,6 +1,6 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Platform, Pressable, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -11,6 +11,7 @@ import { Fonts, Spacing } from '@/constants/theme';
 import { coachFetch, useCoachConfig } from '@/lib/coach-client';
 import { TextInput } from '@/components/text-input';
 import { KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
+import { softSheet } from '@/constants/soft-sheet';
 
 type Palette = ReturnType<typeof useNutritionPalette>;
 type Fact = { key: string; value: string; category: string; updated_at: string };
@@ -185,7 +186,7 @@ export default function CoachMemoryScreen() {
 }
 
 const createStyles = (palette: Palette) =>
-  StyleSheet.create({
+  softSheet({
     page: { flex: 1, backgroundColor: palette.background },
     safe: { flex: 1, paddingHorizontal: Spacing.three },
     loading: { marginTop: Spacing.six },

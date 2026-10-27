@@ -9,6 +9,7 @@ import { useNutritionPalette } from '@/components/nutrition-ui';
 import { powerSyncDb } from '@/db/powersync';
 import { IS_PERSONAL } from '@/lib/coach-client';
 import { useT } from '@/lib/i18n';
+import { softSheet } from '@/constants/soft-sheet';
 
 const createTabBarStyle = (palette: ReturnType<typeof useNutritionPalette>) => ({
   backgroundColor: palette.background,
@@ -142,7 +143,7 @@ export default function TabsLayout() {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   item: {
     paddingVertical: 0,
   },

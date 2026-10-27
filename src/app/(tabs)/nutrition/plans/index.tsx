@@ -1,12 +1,13 @@
 import { router } from 'expo-router';
 import { useMemo } from 'react';
-import { FlatList, Pressable, StyleSheet, View } from 'react-native';
+import { FlatList, Pressable, View } from 'react-native';
 
 import { NutritionEmpty, NutritionIconButton, NutritionPage, PaletteText as ThemedText, cardShadowFor, useNutritionPalette, useNutritionUi } from '@/components/nutrition-ui';
 import { SwipeableRow } from '@/components/swipeable-row';
 import { Fonts, Spacing } from '@/constants/theme';
 import { useDeleteNutritionPlan, useNutritionPlans } from '@/db/queries/nutrition-plans';
 import { useT } from '@/lib/i18n';
+import { softSheet } from '@/constants/soft-sheet';
 
 export default function NutritionPlansScreen() {
   const nutritionUi = useNutritionUi();
@@ -42,7 +43,7 @@ export default function NutritionPlansScreen() {
   );
 }
 
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   row: { minHeight: 66, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: palette.card, borderWidth: 1, borderColor: palette.border, paddingHorizontal: Spacing.three },
   copy: { gap: 3 },
   chevron: { color: palette.muted, fontFamily: Fonts.technical, fontSize: 13 },

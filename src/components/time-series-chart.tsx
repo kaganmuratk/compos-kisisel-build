@@ -14,6 +14,7 @@ import { useFontScale } from '@/hooks/use-font-scale';
 import { useCardShadow, useTheme } from '@/hooks/use-theme';
 import { computeChartScale, type ChartMetricKind } from '@/lib/chart-scale';
 import { useChartPointerConfig } from '@/lib/chart-pointer';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Reusable per-metric line-chart card — the same visual template as
 // analysis/body/[metric].tsx's weight/sleep/stress/water charts, factored
@@ -100,10 +101,21 @@ export function TimeSeriesChart({
   // label renders in its own wider box (2 × edgeInset, the room left at the
   // chart ends), centered on its point.
   const axisLabelWidth = edgeInset * 2;
-  const displayData = data.map((point) => ({
+  // Those wider boxes overlap once labeled points sit closer than a label's
+  // width ("7 Ey14 Ey21 Ey…" at 90G weekly, 2026-10-27). Walking back from
+  // the newest point (so it's always labeled), a label is skipped while it
+  // would still overlap the last one kept.
+  const shownLabels = new Set<number>();
+  for (let index = data.length - 1, lastShown = Infinity; index >= 0; index--) {
+    if (!data[index].axisLabel || (lastShown - index) * spacing < axisLabelWidth + 4) continue;
+    shownLabels.add(index);
+    lastShown = index;
+  }
+  const showsLabel = (index: number) => shownLabels.has(index);
+  const displayData = data.map((point, index) => ({
     ...point,
-    label: point.axisLabel ?? '',
-    labelComponent: point.axisLabel
+    label: showsLabel(index) ? point.axisLabel ?? '' : '',
+    labelComponent: point.axisLabel && showsLabel(index)
       ? () => (
           <ThemedText allowFontScaling={false} numberOfLines={1} style={[axisLabelStyle, { width: axisLabelWidth, marginLeft: (spacing - axisLabelWidth) / 2, textAlign: 'center' }]}>
             {point.axisLabel}
@@ -245,7 +257,7 @@ export function TimeSeriesChart({
   );
 }
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   card: {
     borderRadius: Radius.lg,
     padding: Spacing.four,

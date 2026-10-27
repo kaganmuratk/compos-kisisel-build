@@ -31,6 +31,7 @@ import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
 import { KeyboardDoneBar, KEYBOARD_BAR_CLEARANCE } from '@/components/keyboard-done-bar';
 import { BackButton } from '@/components/screen-header';
+import { softSheet } from '@/constants/soft-sheet';
 
 // The DETAILS sheet's section labels (HEALTH/FOOD/NOTE/MEDIA) each get one
 // fixed color regardless of theme — same hues History's day view uses for
@@ -397,7 +398,7 @@ function ExerciseCard({
 
 // fs: capped OS text-size factor (useFontScale) — the table's fixed column
 // widths hold text, so they grow with it.
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>, fs: number) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>, fs: number) => softSheet({
   container: {
     flex: 1,
     backgroundColor: palette.background,

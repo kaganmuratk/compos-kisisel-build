@@ -1,10 +1,11 @@
 import { forwardRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { nutritionPalette } from '@/components/nutrition-ui';
 import { POSTER_HEIGHT, POSTER_WIDTH, SharePosterCard, themeTextShadow } from '@/components/share-poster-card';
 import { Fonts } from '@/constants/theme';
 import { useT } from '@/lib/i18n';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Full-bleed export size — matches SharePosterCard's fixed poster canvas,
 // same migration as nutrition-share-card.tsx: the old bordered dashboard
@@ -65,7 +66,7 @@ function Stat({ value, label, textTheme = 'light' }: { value: string; label: str
   );
 }
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   eyebrow: {
     fontFamily: Fonts.technicalBold,
     fontSize: 40,

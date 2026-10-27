@@ -1,9 +1,10 @@
 import { forwardRef } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { nutritionPalette } from '@/components/nutrition-ui';
 import { POSTER_HEIGHT, POSTER_WIDTH, SharePosterCard, themeTextShadow } from '@/components/share-poster-card';
 import { Fonts } from '@/constants/theme';
+import { softSheet } from '@/constants/soft-sheet';
 
 // Fixed 9:16 (Instagram Story) aspect ratio matching SharePosterCard's fixed
 // 1080x1920 poster canvas — same convention as nutrition share cards.
@@ -99,7 +100,7 @@ export const DaySummaryShareCard = forwardRef<View, DaySummaryShareCardProps>(fu
   );
 });
 
-const styles = StyleSheet.create({
+const styles = softSheet({
   dateLabel: {
     fontFamily: Fonts.technicalBold,
     fontSize: 32,

@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ScreenHeader } from '@/components/screen-header';
 import { getExerciseCategoryColor } from '@/components/set-row';
@@ -12,6 +12,7 @@ import { useDayExercises, useProgramDay, useRemoveDayExercise, useUpdateDayExerc
 import { useActiveSession } from '@/db/queries/workout';
 import { useT } from '@/lib/i18n';
 import { TextInput } from '@/components/text-input';
+import { softSheet } from '@/constants/soft-sheet';
 type DayExercise = NonNullable<ReturnType<typeof useDayExercises>['data']>[number];
 export default function ProgramDayScreen() {
   const palette = useNutritionPalette();
@@ -114,7 +115,7 @@ function Target({
     </View>
   );
 }
-const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => StyleSheet.create({
+const createStyles = (palette: ReturnType<typeof useNutritionPalette>) => softSheet({
   page: { flex: 1, backgroundColor: palette.background },
   safe: { flex: 1, paddingHorizontal: Spacing.three },
   start: { minHeight: 48, alignItems: 'center', justifyContent: 'center', backgroundColor: palette.blue },

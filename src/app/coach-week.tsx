@@ -1,6 +1,6 @@
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PaletteText as ThemedText, cardShadowFor, useNutritionPalette } from '@/components/nutrition-ui';
@@ -9,6 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { Fonts, Spacing } from '@/constants/theme';
 import { coachFetch, useCoachConfig, type CoachPlanSet } from '@/lib/coach-client';
 import { addDaysToDateString, getTodayDateString } from '@/lib/date';
+import { softSheet } from '@/constants/soft-sheet';
 
 type Palette = ReturnType<typeof useNutritionPalette>;
 type Session = {
@@ -194,7 +195,7 @@ export default function CoachWeekScreen() {
 }
 
 const createStyles = (palette: Palette) =>
-  StyleSheet.create({
+  softSheet({
     page: { flex: 1, backgroundColor: palette.background },
     safe: { flex: 1, paddingHorizontal: Spacing.three },
     loading: { marginTop: Spacing.six },
